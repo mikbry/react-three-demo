@@ -1,28 +1,14 @@
-/**
- * Copyright (c) Mik BRY
- * mik@miklabs.com
- *
- * This source code is licensed under private license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
+// Code from Create React App
 import React from 'react';
-import PropTypes from 'prop-types';
 import './App.css';
-import GLView from './GLView';
+import Three from './Three';
 
-function App({ scene }) {
+function App() {
   return (
     <div className="App">
-      <GLView width={720} height={480} scene={scene} />
-      <div className="App-title">WebGL React App</div>
+      <Three />
     </div>
   );
 }
-
-App.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  scene: PropTypes.object.isRequired,
-};
 
 export default App;
