@@ -47,6 +47,7 @@ const plugins = babelConf => [
           'public/logo512.png',
           'public/manifest.json',
           'public/robots.text',
+          'public/images',
         ],
         dest: 'build',
       },

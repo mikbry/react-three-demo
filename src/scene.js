@@ -7,7 +7,7 @@ import { Reflector } from 'three/examples/jsm/objects/Reflector';
 import Particles from './Particles';
 
 const WALLWIDTH = 260;
-const WALLHEIGHT = 130;
+const WALLHEIGHT = 110;
 const WALLDEPTH = 5;
 
 const WIDTH = window.innerWidth;
@@ -30,6 +30,7 @@ export default class {
     const displacement = textureLoader.load(
       'https://s3-us-west-2.amazonaws.com/s.cdpn.io/65874/WoodFlooring044_DISP_2K.jpg',
     );
+    const normalMap = textureLoader.load('/images/flakes.png');
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 1000);
@@ -43,7 +44,7 @@ export default class {
     camera.rotation.x = -0.12;
 
     const bulbGeometry = new THREE.SphereBufferGeometry(2, 16, 8);
-    const bulbLight = new THREE.PointLight(0x888888, 0.6, -10, 0.6);
+    const bulbLight = new THREE.PointLight(0xffffff, 0.6, -10, 2);
     const bulbMat = new THREE.MeshStandardMaterial({
       emissive: 0x100060,
       emissiveIntensity: 0.7,
@@ -65,25 +66,28 @@ export default class {
     // spotLight.castShadow = true;
     // scene.add(spotLight);
 
-    const mainLight = new THREE.PointLight(0x202030, 1.5, 50);
+    const mainLight = new THREE.PointLight(0x203030, 5, 100);
     mainLight.position.y = 60;
     // mainLight.castShadow = true;
     scene.add(mainLight);
 
-    const greenLight = new THREE.PointLight(0x00ff00, 4, 100);
-    greenLight.position.set(150, 50, 0);
+    const greenLight = new THREE.PointLight(0x00ff00, 2, 100);
+    greenLight.position.set(50, 50, 0);
     // greenLight.castShadow = true;
     scene.add(greenLight);
+    this.greenLight = greenLight;
 
-    const redLight = new THREE.PointLight(0xff0020, 5, 100);
-    redLight.position.set(-150, 50, 20);
+    const redLight = new THREE.PointLight(0xff0020, 2, 100);
+    redLight.position.set(-50, 50, 20);
     // redLight.castShadow = true;
     scene.add(redLight);
+    this.redLight = redLight;
 
-    const blueLight = new THREE.PointLight(0x7f7fff, 0.5, 150);
-    blueLight.position.set(0, 150, 150);
+    const blueLight = new THREE.PointLight(0x7f7fff, 2, 150);
+    blueLight.position.set(0, 50, 50);
     // blueLight.castShadow = true;
     scene.add(blueLight);
+    this.blueLight = blueLight;
 
     const floorGeometry = new THREE.PlaneBufferGeometry(WALLWIDTH, WALLWIDTH, 100, 100);
     floorGeometry.rotateX(-Math.PI / 2);
@@ -146,24 +150,23 @@ export default class {
     wallRight.receiveShadow = true;
     scene.add(wallRight);
 
-    geometry = new THREE.BoxGeometry(30, 40, 30);
+    geometry = new THREE.BoxGeometry(20, 30, 20);
     const mtl = new THREE.MeshPhongMaterial({
-      color: 0x9090c0,
-      emissive: 0x0a0a10,
-      shininess: 0.9,
-      // specular: 0x102010,
+      color: 0x00510,
+      metalness: 0.9,
+      roughness: 0.4,
+      specular: 0x102010,
       // map: map,
-      bumpScale: 30,
-      bumpMap: displacement,
-      specularMap: roughness,
+      normalMap,
+      normalScale: new THREE.Vector2(0.5, 0.5),
     });
     const cube = new THREE.Mesh(geometry, mtl);
-    cube.position.y = 40 / 2 + 1;
+    cube.position.y = 30 / 2 + 1;
     cube.castShadow = true;
     cube.receiveShadow = true;
     scene.add(cube);
 
-    const pCloud = this.particles.init(30, 40 + 30 / 2);
+    const pCloud = this.particles.init(20, 30 + 20 / 2);
     scene.add(pCloud);
 
     this.scene = scene;
@@ -182,11 +185,18 @@ export default class {
 
   render() {
     const pCloud = this.particles.render();
-    pCloud.rotation.y += 0.01;
-    this.cube.rotation.y += 0.01;
-    const time = Date.now() * 0.005;
+    pCloud.rotation.y -= 0.01;
+    this.cube.rotation.y -= 0.01;
+    let time = Date.now() * 0.005;
     this.bulbLight.position.y = Math.cos(time) * 0.8 + 80.25;
     this.bulbLight.position.z = Math.cos(time) * 0.4 + 80.25;
+    time *= 0.2;
+    this.redLight.position.x = 100 * Math.sin(time);
+    this.redLight.position.z = 100 * Math.cos(time);
+    this.greenLight.position.x = -100 * Math.sin(time);
+    this.greenLight.position.z = 90 * Math.cos(time);
+    this.blueLight.position.x = 80 * Math.sin(time);
+    this.blueLight.position.z = -100 * Math.cos(time);
   }
 
   resize(width, height) {
