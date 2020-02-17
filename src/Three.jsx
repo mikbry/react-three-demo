@@ -4,6 +4,7 @@ import Scene from './scene';
 
 const Three = () => {
   const mount = useRef(null);
+  // eslint-disable-next-line no-unused-vars
   const [isAnimating, setAnimating] = useState(true);
   const controls = useRef(null);
 
@@ -12,12 +13,17 @@ const Three = () => {
     let height = mount.current.clientHeight;
     let frameId;
 
-    const scene = new Scene();
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-
+    const scene = new Scene(renderer);
     scene.init(width, height);
     renderer.setClearColor(scene.background.color);
     renderer.setSize(width, height);
+
+    // renderer.physicallyCorrectLights = true;
+    // renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMapSoft = true;
+    renderer.toneMapping = THREE.ReinhardToneMapping;
 
     const renderScene = () => {
       renderer.render(scene.scene, scene.camera);
@@ -76,6 +82,7 @@ const Three = () => {
   }, [isAnimating]);
 
   // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-  return <div className="viewport-3d" ref={mount} onClick={() => setAnimating(!isAnimating)} />;
+  return <div className="viewport-3d" ref={mount} />;
+  // return <div className="viewport-3d" ref={mount} onClick={() => setAnimating(!isAnimating)} />;
 };
 export default Three;
