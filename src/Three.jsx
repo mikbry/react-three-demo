@@ -25,7 +25,15 @@ const Three = () => {
     renderer.shadowMapSoft = true;
     renderer.toneMapping = THREE.ReinhardToneMapping;
 
+    /* if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
+      // eslint-disable-next-line no-undef
+      __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: scene }));
+      // eslint-disable-next-line no-undef
+      __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: renderer }));
+    } */
+
     const renderScene = () => {
+      // console.log('camera=', scene.camera.rotation);
       renderer.render(scene.scene, scene.camera);
     };
 

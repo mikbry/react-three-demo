@@ -7,8 +7,14 @@ import { Reflector } from 'three/examples/jsm/objects/Reflector';
 import Particles from './Particles';
 
 const WALLWIDTH = 260;
-const WALLHEIGHT = 110;
+const WALLHEIGHT = 90;
 const WALLDEPTH = 5;
+
+const STONEWIDTH = 10;
+const STONEHEIGHT = 15;
+
+const PANELSIZE = 70;
+const PANELDEPTH = 8;
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -33,15 +39,12 @@ export default class {
     const normalMap = textureLoader.load('/images/flakes.png');
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 1000);
-    camera.position.z = 210 + WALLWIDTH / 2;
-    camera.position.y = 100;
-
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 1000);
+    camera.position.set(140, 20, -40 + WALLWIDTH / 2);
     const controls = new OrbitControls(camera, this.renderer.domElement);
-    controls.target.set(0, 20, 0);
-    controls.update();
+    controls.target.set(-5, 20, 10);
 
-    camera.rotation.x = -0.12;
+    controls.update();
 
     const bulbGeometry = new THREE.SphereBufferGeometry(2, 16, 8);
     const bulbLight = new THREE.PointLight(0xffffff, 0.6, -10, 2);
@@ -66,19 +69,19 @@ export default class {
     // spotLight.castShadow = true;
     // scene.add(spotLight);
 
-    const mainLight = new THREE.PointLight(0x203030, 5, 100);
+    const mainLight = new THREE.PointLight(0x002020, 5, 100);
     mainLight.position.y = 60;
     // mainLight.castShadow = true;
     scene.add(mainLight);
 
-    const greenLight = new THREE.PointLight(0x00ff00, 2, 100);
+    const greenLight = new THREE.PointLight(0x30ff88, 2, 100);
     greenLight.position.set(50, 50, 0);
     // greenLight.castShadow = true;
     scene.add(greenLight);
     this.greenLight = greenLight;
 
-    const redLight = new THREE.PointLight(0xff0020, 2, 100);
-    redLight.position.set(-50, 50, 20);
+    const redLight = new THREE.PointLight(0xff2020, 5, 100);
+    redLight.position.set(50, 50, 10);
     // redLight.castShadow = true;
     scene.add(redLight);
     this.redLight = redLight;
@@ -92,24 +95,25 @@ export default class {
     const floorGeometry = new THREE.PlaneBufferGeometry(WALLWIDTH, WALLWIDTH, 100, 100);
     floorGeometry.rotateX(-Math.PI / 2);
     const floorMaterial = new THREE.MeshPhongMaterial({
-      color: 0x0a0f0f,
+      color: 0x101414,
       bumpScale: 30,
       bumpMap: displacement,
       specularMap: roughness,
       opacity: 0.5,
+      transparent: true,
     });
     this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
     this.floor.receiveShadow = true;
     scene.add(this.floor);
-    const geom = new THREE.CircleBufferGeometry(80, 80);
+    const geom = new THREE.PlaneBufferGeometry(WALLWIDTH, WALLWIDTH);
     const groundMirror = new Reflector(geom, {
-      clipBias: 0.003,
+      clipBias: 0.03,
       textureWidth: WIDTH * window.devicePixelRatio,
       textureHeight: HEIGHT * window.devicePixelRatio,
-      color: 0x6666bb,
+      color: 0x062222,
       recursion: 1,
     });
-    groundMirror.position.y = -0.02;
+    groundMirror.position.y = 0.001;
     groundMirror.rotateX(-Math.PI / 2);
     // groundMirror.receiveShadow = true;
     scene.add(groundMirror);
@@ -123,9 +127,9 @@ export default class {
 
     let geometry = new THREE.BoxGeometry(WALLWIDTH + WALLDEPTH, WALLHEIGHT, WALLDEPTH);
     const material = new THREE.MeshPhongMaterial({
-      color: 0x061622,
+      color: 0x314249,
       bumpScale: 30,
-      bumpMap: displacement,
+      // bumpMap: displacement,
       specularMap: roughness,
     });
     const wallFront = new THREE.Mesh(geometry, material);
@@ -148,25 +152,52 @@ export default class {
     wallRight.position.x = WALLWIDTH / 2;
     wallRight.position.y = WALLHEIGHT / 2;
     wallRight.receiveShadow = true;
-    scene.add(wallRight);
+    // scene.add(wallRight);
 
-    geometry = new THREE.BoxGeometry(20, 30, 20);
+    const panelGeom = new THREE.BoxGeometry(PANELSIZE, PANELSIZE, PANELDEPTH);
+    panelGeom.rotateY(-Math.PI / 2);
+    const panelMat = new THREE.MeshPhongMaterial({
+      color: 0x314249,
+      bumpScale: 30,
+      specularMap: roughness,
+    });
+    const panel = new THREE.Mesh(panelGeom, panelMat);
+    panel.position.x = -WALLWIDTH / 2 + 24;
+    panel.position.y = PANELSIZE / 2;
+    panel.position.z = 40;
+    panel.receiveShadow = true;
+    scene.add(panel);
+
+    const screenGeom = new THREE.PlaneBufferGeometry(PANELSIZE - 10, PANELSIZE - 10);
+    screenGeom.rotateY(Math.PI / 2);
+    const screenMat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      specular: 0xffffff,
+    });
+    const screen = new THREE.Mesh(screenGeom, screenMat);
+    screen.position.x = -WALLWIDTH / 2 + 30;
+    screen.position.y = PANELSIZE / 2;
+    screen.position.z = 40;
+    screen.receiveShadow = true;
+    scene.add(screen);
+
+    geometry = new THREE.BoxGeometry(STONEWIDTH, STONEHEIGHT, STONEWIDTH);
     const mtl = new THREE.MeshPhongMaterial({
-      color: 0x00510,
+      color: 0x314249,
       metalness: 0.9,
       roughness: 0.4,
-      specular: 0x102010,
+      specular: 0x101010,
       // map: map,
       normalMap,
       normalScale: new THREE.Vector2(0.5, 0.5),
     });
     const cube = new THREE.Mesh(geometry, mtl);
-    cube.position.y = 30 / 2 + 1;
+    cube.position.y = STONEHEIGHT / 2 + 1;
     cube.castShadow = true;
     cube.receiveShadow = true;
     scene.add(cube);
 
-    const pCloud = this.particles.init(20, 30 + 20 / 2);
+    const pCloud = this.particles.init(STONEWIDTH, STONEHEIGHT + STONEWIDTH / 2);
     scene.add(pCloud);
 
     this.scene = scene;
