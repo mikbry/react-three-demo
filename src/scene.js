@@ -5,6 +5,7 @@ import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
 import { Reflector } from 'three/examples/jsm/objects/Reflector';
 
 import Particles from './Particles';
+import HyperMix from './HyperMix';
 
 const WALLWIDTH = 260;
 const WALLHEIGHT = 90;
@@ -24,6 +25,7 @@ export default class {
     this.renderer = renderer;
     this.background = { color: '#000000' };
     this.particles = new Particles();
+    this.time = Date.now();
   }
 
   init(width, height) {
@@ -200,6 +202,9 @@ export default class {
     const pCloud = this.particles.init(STONEWIDTH, STONEHEIGHT + STONEWIDTH / 2);
     scene.add(pCloud);
 
+    this.hyperMix = new HyperMix(this.renderer);
+    this.hyperMix.init(camera, scene);
+
     this.scene = scene;
     this.camera = camera;
     this.wallFront = wallFront;
@@ -215,10 +220,12 @@ export default class {
   }
 
   render() {
+    const now = Date.now();
+    this.hyperMix.render(now - this.time);
     const pCloud = this.particles.render();
     pCloud.rotation.y -= 0.01;
     this.cube.rotation.y -= 0.01;
-    let time = Date.now() * 0.005;
+    let time = now * 0.005;
     this.bulbLight.position.y = Math.cos(time) * 0.8 + 80.25;
     this.bulbLight.position.z = Math.cos(time) * 0.4 + 80.25;
     time *= 0.2;
@@ -228,6 +235,7 @@ export default class {
     this.greenLight.position.z = 90 * Math.cos(time);
     this.blueLight.position.x = 80 * Math.sin(time);
     this.blueLight.position.z = -100 * Math.cos(time);
+    this.time = now;
   }
 
   resize(width, height) {

@@ -13,7 +13,7 @@ const Three = () => {
     let height = mount.current.clientHeight;
     let frameId;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, precision: 'mediump' });
     const scene = new Scene(renderer);
     scene.init(width, height);
     renderer.setClearColor(scene.background.color);

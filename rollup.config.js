@@ -7,6 +7,8 @@ import hotcss from 'rollup-plugin-hot-css';
 import commonjs from 'rollup-plugin-commonjs-alternate';
 import refresh from 'rollup-plugin-react-refresh';
 import copy from 'rollup-plugin-copy';
+// import { string } from 'rollup-plugin-string';
+import glslify from 'rollup-plugin-glslify';
 
 const appName = 'rollupReactApp';
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -73,6 +75,9 @@ const plugins = babelConf => [
   }),
   babel(babelConf),
   resolve({ extensions: ['.mjs', '.js', '.jsx', '.json'] }),
+  glslify({
+    include: ['**/*.frag', '**/*.vert'],
+  }),
   commonjs({ extensions: ['.js', '.jsx'] }),
   production && terser(),
   development && refresh(),
