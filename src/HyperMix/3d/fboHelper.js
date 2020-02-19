@@ -1,89 +1,95 @@
-/* eslint-disable no-underscore-dangle */
+import * as THREE from 'three';
+
 import quadvert from './quad.vert';
 import quadfrag from './quad.frag';
 
-const THREE = require('three');
+class FboHelper {
+  /* let undef;
 
-let undef;
+let this.renderer;
+let this.mesh;
+let this.scene;
+let this.camera;
 
-let _renderer;
-let _mesh;
-let _scene;
-let _camera;
-
-let rawShaderPrefix = (exports.rawShaderPrefix = undef);
+let rawShaderPrefix = undef;
 // eslint-disable-next-line no-unused-vars
-let vertexShader = (exports.vertexShader = undef);
-let copyMaterial = (exports.copyMaterial = undef);
+let vertexShader = undef;
+let copyMaterial = undef; */
 
-function init(renderer) {
-  // ensure it wont initialized twice
-  if (_renderer) return;
+  init(renderer) {
+    // ensure it wont initialized twice
+    if (this.renderer) return;
 
-  _renderer = renderer;
+    this.renderer = renderer;
 
-  rawShaderPrefix = exports.rawShaderPrefix = `precision ${_renderer.capabilities.precision} float;\n`;
+    const rawShaderPrefix = `precision ${this.renderer.capabilities.precision} float;\n`;
 
-  _scene = new THREE.Scene();
-  _camera = new THREE.Camera();
-  _camera.position.z = 1;
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.Camera();
+    this.camera.position.z = 1;
 
-  copyMaterial = exports.copyMaterial = new THREE.RawShaderMaterial({
-    uniforms: {
-      u_texture: { type: 't', value: undef },
-    },
-    vertexShader: (vertexShader = exports.vertexShader = rawShaderPrefix + quadvert),
-    fragmentShader: rawShaderPrefix + quadfrag,
-  });
+    const vertexShader = rawShaderPrefix + quadvert;
+    const copyMaterial = new THREE.RawShaderMaterial({
+      uniforms: {
+        u_texture: { type: 't', value: this.undef },
+      },
+      vertexShader,
+      fragmentShader: rawShaderPrefix + quadfrag,
+    });
+    this.vertexShader = vertexShader;
+    this.copyMaterial = copyMaterial;
 
-  _mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), copyMaterial);
-  _scene.add(_mesh);
-}
+    this.mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), copyMaterial);
+    this.scene.add(this.mesh);
+  }
 
-function copy(inputTexture, ouputTexture) {
-  _mesh.material = copyMaterial;
-  copyMaterial.uniforms.u_texture.value = inputTexture;
-  if (ouputTexture) {
-    _renderer.render(_scene, _camera, ouputTexture);
-  } else {
-    _renderer.render(_scene, _camera);
+  copy(inputTexture, ouputTexture) {
+    this.mesh.material = this.copyMaterial;
+    this.copyMaterial.uniforms.uthis.texture.value = inputTexture;
+    if (ouputTexture) {
+      this.renderer.render(this.scene, this.camera, ouputTexture);
+    } else {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  render(material, renderTarget) {
+    this.mesh.material = material;
+    if (renderTarget) {
+      this.renderer.render(this.scene, this.camera, renderTarget);
+    } else {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  createRenderTarget(width, height, format, type, minFilter, magFilter) {
+    const renderTarget = new THREE.WebGLRenderTarget(width || 1, height || 1, {
+      format: format || THREE.RGBFormat,
+      type: type || THREE.UnsignedByteType,
+      minFilter: minFilter || THREE.LinearFilter,
+      magFilter: magFilter || THREE.LinearFilter,
+      // depthBuffer: false,
+      // stencilBuffer: false
+    });
+
+    renderTarget.texture.generateMipMaps = false;
+
+    return renderTarget;
+  }
+
+  getColorState() {
+    return {
+      autoClearColor: this.renderer.autoClearColor,
+      clearColor: this.renderer.getClearColor().getHex(),
+      clearAlpha: this.renderer.getClearAlpha(),
+    };
+  }
+
+  setColorState(state) {
+    this.renderer.setClearColor(state.clearColor, state.clearAlpha);
+    this.renderer.autoClearColor = state.autoClearColor;
   }
 }
-function render(material, renderTarget) {
-  _mesh.material = material;
-  if (renderTarget) {
-    _renderer.render(_scene, _camera, renderTarget);
-  } else {
-    _renderer.render(_scene, _camera);
-  }
-}
 
-function createRenderTarget(width, height, format, type, minFilter, magFilter) {
-  const renderTarget = new THREE.WebGLRenderTarget(width || 1, height || 1, {
-    format: format || THREE.RGBFormat,
-    type: type || THREE.UnsignedByteType,
-    minFilter: minFilter || THREE.LinearFilter,
-    magFilter: magFilter || THREE.LinearFilter,
-    // depthBuffer: false,
-    // stencilBuffer: false
-  });
-
-  renderTarget.texture.generateMipMaps = false;
-
-  return renderTarget;
-}
-
-function getColorState() {
-  return {
-    autoClearColor: _renderer.autoClearColor,
-    clearColor: _renderer.getClearColor().getHex(),
-    clearAlpha: _renderer.getClearAlpha(),
-  };
-}
-
-function setColorState(state) {
-  _renderer.setClearColor(state.clearColor, state.clearAlpha);
-  _renderer.autoClearColor = state.autoClearColor;
-}
-
-export { init, copy, render, createRenderTarget, getColorState, setColorState };
+export default FboHelper;

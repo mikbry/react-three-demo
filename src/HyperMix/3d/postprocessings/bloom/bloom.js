@@ -5,9 +5,9 @@ import bloomBlurfrag from './bloomBlur.frag';
 const THREE = require('three');
 const Effect = require('../Effect');
 const effectComposer = require('../effectComposer');
-const fboHelper = require('../../fboHelper');
 
 let undef;
+let fboHelper;
 
 const exports = (module.exports = new Effect());
 const _super = Effect.prototype;
@@ -19,7 +19,8 @@ let _blurMaterial;
 
 const BLUR_BIT_SHIFT = 1;
 
-function init() {
+function init(_fboHelper) {
+  fboHelper = _fboHelper;
   _super.init.call(this, {
     uniforms: {
       u_blurTexture: { type: 't', value: undef },

@@ -63,7 +63,7 @@ function _initGeometry() {
     position[i3 + 2] = (20000 + Math.pow(Math.random(), 5) * 24000) / baseSize; // size
   }
   _particleGeometry = new THREE.BufferGeometry();
-  _particleGeometry.addAttribute('position', new THREE.BufferAttribute(position, 3));
+  _particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
 }
 
 function _initDepthRenderTarget() {
@@ -299,4 +299,4 @@ function update(renderTarget) {
   _renderer.autoClearColor = autoClearColor;
 }
 
-export { init, resize, preRender, update, mesh };
+export default { init, resize, preRender, update, mesh };

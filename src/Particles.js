@@ -7,7 +7,7 @@ export default class {
     const midWidth = width / 2;
     const particleCount = 10000;
     const particles = new THREE.Geometry();
-    const material = new THREE.PointCloudMaterial({
+    const material = new THREE.PointsMaterial({
       color: 0x333333,
       size: 1,
       // map: texture,
@@ -27,15 +27,15 @@ export default class {
     }
     this.particles = particles;
     this.particleCount = particleCount;
-    this.pointCloud = new THREE.PointCloud(particles, material);
-    this.pointCloud.position.y = y;
-    this.pointCloud.sortParticles = true;
-    return this.pointCloud;
+    this.points = new THREE.Points(particles, material);
+    this.points.position.y = y;
+    this.points.sortParticles = true;
+    return this.points;
   }
 
   render() {
-    // this.pointCloud.rotation.y += 0.001;
-    // this.pointCloud.rotation.z += 0.0005;
+    // this.points.rotation.y += 0.001;
+    // this.points.rotation.z += 0.0005;
 
     for (let i = 0; i < this.particleCount; i += 1) {
       const particle = this.particles.vertices[i];
@@ -51,7 +51,7 @@ export default class {
       particle.y += particle.velocity.y * 0.5;
       particle.z += particle.velocity.z * 0.5;
     }
-    this.pointCloud.geometry.verticesNeedUpdate = true;
-    return this.pointCloud;
+    this.points.geometry.verticesNeedUpdate = true;
+    return this.points;
   }
 }

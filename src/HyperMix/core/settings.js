@@ -1,4 +1,6 @@
-exports.useStats = false;
+const settings = {};
+
+settings.useStats = false;
 
 /* const amountMap = {
   '4k': [64, 64, 0.3],
@@ -14,51 +16,53 @@ exports.useStats = false;
   '4m': [2048, 2048, 0.9],
 }; */
 
-// exports.amountList = keys(amountMap);
+// settings.amountList = keys(amountMap);
 // query.amount = amountMap[query.amount] ? query.amount : '16k';
 // const amountInfo = amountMap[query.amount];
-// exports.simulatorTextureWidth = amountInfo[0];
-// exports.simulatorTextureHeight = amountInfo[1];
+// settings.simulatorTextureWidth = amountInfo[0];
+// settings.simulatorTextureHeight = amountInfo[1];
 
-exports.emitterDistanceRatio = 0.65;
-exports.emitterSpeed = 20.0;
+settings.emitterDistanceRatio = 0.65;
+settings.emitterSpeed = 20.0;
 
-exports.volumeWidth = 256;
-exports.volumeHeight = 128;
-exports.volumeDepth = 128;
-exports.volumeSliceColumn = 8;
-exports.volumeSliceRow = 16;
-exports.volumeScale = 7;
+settings.volumeWidth = 256;
+settings.volumeHeight = 128;
+settings.volumeDepth = 128;
+settings.volumeSliceColumn = 8;
+settings.volumeSliceRow = 16;
+settings.volumeScale = 7;
 
-exports.speed = 0.45;
-exports.dieSpeed = 0.0035;
-// exports.radius = amountInfo[2];
-exports.blur = 0;
-exports.curlSize = 0.00055;
+settings.speed = 0.45;
+settings.dieSpeed = 0.0035;
+// settings.radius = amountInfo[2];
+settings.blur = 0;
+settings.curlSize = 0.00055;
 
-exports.particleSize = 32;
-exports.bgColor = '#1c2020';
-exports.color1 = '#e6005e';
-exports.color2 = '#00b1d7';
-exports.dof = 0;
-exports.dofFocus = 1;
-exports.uDofDistance = 0;
-exports.dofFocusZ = 0;
-exports.dofMouse = false;
+settings.particleSize = 32;
+settings.bgColor = '#1c2020';
+settings.color1 = '#e6005e';
+settings.color2 = '#00b1d7';
+settings.dof = 0;
+settings.dofFocus = 1;
+settings.uDofDistance = 0;
+settings.dofFocusZ = 0;
+settings.dofMouse = false;
 
-/* const motionBlurQualityMap = (exports.motionBlurQualityMap = {
+/* const motionBlurQualityMap = (settings.motionBlurQualityMap = {
   best: 1,
   high: 0.5,
   medium: 1 / 3,
   low: 0.25,
 });
-exports.motionBlurQualityList = keys(motionBlurQualityMap);
+settings.motionBlurQualityList = keys(motionBlurQualityMap);
 query.motionBlurQuality = motionBlurQualityMap[query.motionBlurQuality] ? query.motionBlurQuality : 'medium'; */
-exports.fxaa = true;
-exports.motionBlur = true;
-exports.motionBlurPause = false;
-exports.bloom = false;
-exports.vignette = false;
-exports.vignetteMultiplier = 0.8;
+settings.fxaa = true;
+settings.motionBlur = true;
+settings.motionBlurPause = false;
+settings.bloom = false;
+settings.vignette = false;
+settings.vignetteMultiplier = 0.8;
 
-exports.capablePrecision = 'mediump';
+settings.capablePrecision = 'mediump';
+
+export default settings;

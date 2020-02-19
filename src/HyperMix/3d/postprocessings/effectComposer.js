@@ -1,7 +1,6 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable no-underscore-dangle */
 const THREE = require('three');
-const fboHelper = require('../fboHelper');
 
 let undef;
 
@@ -11,6 +10,7 @@ exports.renderer = undef;
 exports.scene = undef;
 exports.camera = undef;
 
+let fboHelper;
 const queue = (exports.queue = []);
 let fromRenderTarget = (exports.fromRenderTarget = undef);
 let toRenderTarget = (exports.toRenderTarget = undef);
@@ -35,7 +35,8 @@ function swapRenderTarget() {
   fromRenderTarget = exports.fromRenderTarget = tmp;
 }
 
-function init(renderer, scene, camera) {
+function init(renderer, scene, camera, _fboHelper) {
+  fboHelper = _fboHelper;
   fromRenderTarget = exports.fromRenderTarget = fboHelper.createRenderTarget();
   fromRenderTarget.depthBuffer = true;
   fromRenderTarget.stencilBuffer = true;

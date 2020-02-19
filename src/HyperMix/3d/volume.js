@@ -62,7 +62,7 @@ function init(renderer) {
   boundBox = exports.boundBox = new THREE.Vector3();
   boundBox.copy(resolution).multiplyScalar(settings.volumeScale);
 
-  renderTarget = exports.renderTarget = new THREE.WebGLRenderTarget(TEXTURE_WIDTH, TEXTURE_HEIGHT, {
+  renderTarget = new THREE.WebGLRenderTarget(TEXTURE_WIDTH, TEXTURE_HEIGHT, {
     wrapS: THREE.ClampToEdgeWrapping,
     wrapT: THREE.ClampToEdgeWrapping,
     minFilter: THREE.LinearFilter,
@@ -88,7 +88,7 @@ function init(renderer) {
   }
 
   const geometry = new THREE.BufferGeometry();
-  geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
   // var rawShaderPrefix = 'precision ' + renderer.capabilities.precision + ' float;\n';
   const material = new THREE.ShaderMaterial({
@@ -131,4 +131,4 @@ function update() {
 
 const sliceInfo = undef;
 
-export { init, update, sliceInfo, boundBox, resolution };
+export default { init, update, sliceInfo, boundBox, resolution, renderTarget };

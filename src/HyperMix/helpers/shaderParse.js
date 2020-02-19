@@ -1,5 +1,5 @@
 /* eslint-disable */
-const THREE = require('three');
+import * as THREE  from 'three';
 
 const threeChunkReplaceRegExp = /\/\/\s?chunk_replace\s(.+)([\d\D]+)\/\/\s?end_chunk_replace/gm;
 const threeChunkRegExp = /\/\/\s?chunk\(\s?(\w+)\s?\);/g;
@@ -50,4 +50,4 @@ function parse(shader) {
   return _glslifyGlobalParse(shader);
 }
 
-module.exports = parse;
+export default parse;

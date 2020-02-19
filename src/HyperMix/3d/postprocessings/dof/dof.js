@@ -7,9 +7,9 @@ const THREE = require('three');
 const settings = require('../../../core/settings');
 const Effect = require('../Effect');
 const effectComposer = require('../effectComposer');
-const fboHelper = require('../../fboHelper');
 
 let undef;
+let fboHelper;
 
 const exports = (module.exports = new Effect());
 const _super = Effect.prototype;
@@ -18,7 +18,8 @@ let _depth1Material;
 let _depth1;
 let _depth1Buffer;
 
-function init() {
+function init(_fboHelper) {
+  fboHelper = _fboHelper;
   _depth1 = fboHelper.createRenderTarget(1, 1, THREE.RGBAFormat, THREE.FloatType);
 
   _super.init.call(this, {

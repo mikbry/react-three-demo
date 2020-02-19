@@ -10,9 +10,9 @@ const THREE = require('three');
 const settings = require('../../../core/settings');
 const Effect = require('../Effect');
 const effectComposer = require('../effectComposer');
-const fboHelper = require('../../fboHelper');
 
 let undef;
+let fboHelper;
 
 const exports = (module.exports = new Effect());
 const _super = Effect.prototype;
@@ -57,7 +57,8 @@ let _prevUseSampling;
 let _width;
 let _height;
 
-function init(sampleCount) {
+function init(sampleCount, _fboHelper) {
+  fboHelper = _fboHelper;
   const gl = effectComposer.renderer.getContext();
   if (!gl.getExtension('OES_texture_float') || !gl.getExtension('OES_texture_float_linear')) {
     throw new Error('no float linear support');
@@ -165,7 +166,7 @@ function resize(width, height) {
       _linesPositions = new Float32Array(amount * 6);
       _linesPositionAttribute = new THREE.BufferAttribute(_linesPositions, 3);
       _linesGeometry.removeAttribute('position');
-      _linesGeometry.addAttribute('position', _linesPositionAttribute);
+      _linesGeometry.setAttribute('position', _linesPositionAttribute);
     }
     let i6 = 0;
     let x;

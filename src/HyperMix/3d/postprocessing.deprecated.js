@@ -1,13 +1,13 @@
 /* eslint-disable no-underscore-dangle */
+import * as THREE from 'three';
+import settings from '../core/settings';
+import shaderParse from '../helpers/shaderParse';
+
 import quadvert from '../glsl/quad.vert';
 import fxaafrag from '../glsl/fxaa.frag';
 import vignettefrag from '../glsl/vignette.frag';
 import doffrag from '../glsl/dof.frag';
 import depth1frag from '../glsl/depth1.frag';
-
-const THREE = require('three');
-const settings = require('../core/settings');
-const shaderParse = require('../helpers/shaderParse');
 
 let undef;
 

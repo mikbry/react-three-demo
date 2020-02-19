@@ -186,8 +186,6 @@ export default class {
     geometry = new THREE.BoxGeometry(STONEWIDTH, STONEHEIGHT, STONEWIDTH);
     const mtl = new THREE.MeshPhongMaterial({
       color: 0x314249,
-      metalness: 0.9,
-      roughness: 0.4,
       specular: 0x101010,
       // map: map,
       normalMap,
