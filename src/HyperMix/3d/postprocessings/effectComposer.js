@@ -74,12 +74,16 @@ function renderQueue(dt) {
   const renderableQueue = queue.filter(_filterQueue);
 
   if (renderableQueue.length) {
-    exports.renderer.render(exports.scene, exports.camera, toRenderTarget);
+    exports.renderer.setRenderTarget(toRenderTarget);
+    exports.renderer.render(exports.scene, exports.camera);
+    exports.renderer.setRenderTarget(null);
+
     swapRenderTarget();
 
     let effect;
     for (let i = 0, len = renderableQueue.length; i < len; i += 1) {
       effect = renderableQueue[i];
+      // console.log('fx', effect.name);
       effect.render(dt, fromRenderTarget, i === len - 1);
     }
   } else {
@@ -91,7 +95,9 @@ function renderScene(renderTarget, _scene, _camera) {
   const scene = _scene || exports.scene;
   const camera = _camera || exports.camera;
   if (renderTarget) {
-    exports.renderer.render(scene, camera, renderTarget);
+    exports.renderer.setRenderTarget(renderTarget);
+    exports.renderer.render(scene, camera);
+    exports.renderer.setRenderTarget(null);
   } else {
     exports.renderer.render(scene, camera);
   }

@@ -201,7 +201,7 @@ export default class {
     scene.add(pCloud);
 
     this.hyperMix = new HyperMix(this.renderer);
-    this.hyperMix.init(camera, scene);
+    this.hyperMix.init(camera, scene, width, height);
 
     this.scene = scene;
     this.camera = camera;
@@ -239,6 +239,7 @@ export default class {
   resize(width, height) {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
+    this.hyperMix.resize(width, height);
   }
 
   destroy() {

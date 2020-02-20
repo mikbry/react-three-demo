@@ -23,7 +23,7 @@ let copyMaterial = undef; */
     this.renderer = renderer;
 
     const rawShaderPrefix = `precision ${this.renderer.capabilities.precision} float;\n`;
-
+    this.rawShaderPrefix = rawShaderPrefix;
     this.scene = new THREE.Scene();
     this.camera = new THREE.Camera();
     this.camera.position.z = 1;
@@ -33,6 +33,7 @@ let copyMaterial = undef; */
       uniforms: {
         u_texture: { type: 't', value: this.undef },
       },
+      name: 'copyMaterial',
       vertexShader,
       fragmentShader: rawShaderPrefix + quadfrag,
     });
@@ -45,9 +46,11 @@ let copyMaterial = undef; */
 
   copy(inputTexture, ouputTexture) {
     this.mesh.material = this.copyMaterial;
-    this.copyMaterial.uniforms.uthis.texture.value = inputTexture;
+    this.copyMaterial.uniforms.u_texture.value = inputTexture;
     if (ouputTexture) {
-      this.renderer.render(this.scene, this.camera, ouputTexture);
+      this.renderer.setRenderTarget(ouputTexture);
+      this.renderer.render(this.scene, this.camera);
+      this.renderer.setRenderTarget(null);
     } else {
       this.renderer.render(this.scene, this.camera);
     }
@@ -55,8 +58,11 @@ let copyMaterial = undef; */
 
   render(material, renderTarget) {
     this.mesh.material = material;
+    // console.log('mat uniforms', material.uniforms);
     if (renderTarget) {
-      this.renderer.render(this.scene, this.camera, renderTarget);
+      this.renderer.setRenderTarget(renderTarget);
+      this.renderer.render(this.scene, this.camera);
+      this.renderer.setRenderTarget(null);
     } else {
       this.renderer.render(this.scene, this.camera);
     }

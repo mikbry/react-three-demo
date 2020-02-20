@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 const settings = {};
 
 settings.useStats = false;
@@ -19,8 +21,8 @@ settings.useStats = false;
 // settings.amountList = keys(amountMap);
 // query.amount = amountMap[query.amount] ? query.amount : '16k';
 // const amountInfo = amountMap[query.amount];
-// settings.simulatorTextureWidth = amountInfo[0];
-// settings.simulatorTextureHeight = amountInfo[1];
+settings.simulatorTextureWidth = 64; // amountInfo[0];
+settings.simulatorTextureHeight = 64; // amountInfo[1];
 
 settings.emitterDistanceRatio = 0.65;
 settings.emitterSpeed = 20.0;
@@ -34,7 +36,7 @@ settings.volumeScale = 7;
 
 settings.speed = 0.45;
 settings.dieSpeed = 0.0035;
-// settings.radius = amountInfo[2];
+settings.radius = 0.3; // amountInfo[2];
 settings.blur = 0;
 settings.curlSize = 0.00055;
 
@@ -64,5 +66,8 @@ settings.vignette = false;
 settings.vignetteMultiplier = 0.8;
 
 settings.capablePrecision = 'mediump';
+settings.ignoredMaterial = new THREE.Material();
+
+settings.mouse = new THREE.Vector2(0, 0);
 
 export default settings;

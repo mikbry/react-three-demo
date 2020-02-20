@@ -1,38 +1,39 @@
+import Fxaa from './fxaa';
+import Bloom from './bloom';
+import Vignette from './vignette';
+import MotionBlur from './motionBlur';
+import Dof from './dof';
+import ParticlesPass from './particlesPass';
+
 const effectComposer = require('./effectComposer');
-const fxaa = require('./fxaa/fxaa');
-const bloom = require('./bloom/bloom');
-const vignette = require('./vignette/vignette');
-const motionBlur = require('./motionBlur/motionBlur');
-const dof = require('./dof/dof');
-const particlesPass = require('./particlesPass/particlesPass');
 
 class PostProcessing {
   /* let undef;
 exports.visualizeTarget = undef; */
 
-  init(renderer, scene, camera, fboHelper) {
+  init(renderer, scene, camera, fboHelper, particles) {
     this.fboHelper = fboHelper;
     effectComposer.init(renderer, scene, camera, fboHelper);
 
     // for less power machine, pass true
     // fxaa.init(true);
 
-    particlesPass.init();
+    const particlesPass = new ParticlesPass(fboHelper, particles);
     effectComposer.queue.push(particlesPass);
 
-    fxaa.init();
+    const fxaa = new Fxaa(fboHelper);
     effectComposer.queue.push(fxaa);
 
-    dof.init(fboHelper);
+    const dof = new Dof(fboHelper);
     effectComposer.queue.push(dof);
 
-    motionBlur.init(0, fboHelper);
+    const motionBlur = new MotionBlur(fboHelper, 0);
     effectComposer.queue.push(motionBlur);
 
-    bloom.init(fboHelper);
+    const bloom = new Bloom(fboHelper);
     effectComposer.queue.push(bloom);
 
-    vignette.init();
+    const vignette = new Vignette(fboHelper);
     effectComposer.queue.push(vignette);
   }
 
@@ -45,7 +46,7 @@ exports.visualizeTarget = undef; */
     effectComposer.renderQueue(dt);
 
     if (this.visualizeTarget) {
-      this.fboHelper.copy(exports.visualizeTarget);
+      this.fboHelper.copy(exports.visualizeTarget.texture);
     }
   }
 }

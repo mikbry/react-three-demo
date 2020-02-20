@@ -1,6 +1,8 @@
-/* eslint-disable no-restricted-properties */
 /* eslint-disable no-bitwise */
-/* eslint-disable no-underscore-dangle */
+import * as THREE from 'three';
+import settings from '../core/settings';
+import shaderParse from '../helpers/shaderParse';
+
 import particlesvert from '../glsl/particles.vert';
 import particlesfrag from '../glsl/particles.frag';
 import shadowvert from '../glsl/shadow.vert';
@@ -13,290 +15,300 @@ import blurvert from '../glsl/blur.vert';
 import blurHfrag from '../glsl/blurH.frag';
 import blurVfrag from '../glsl/blurV.frag';
 
-const THREE = require('three');
-const settings = require('../core/settings');
-const shaderParse = require('../helpers/shaderParse');
-const motionBlur = require('./postprocessings/motionBlur/motionBlur');
-const simulator = require('./simulator');
+// const MotionBlur = require('./postprocessings/motionBlur');
 const lights = require('./lights');
-
-let undef;
-
-// eslint-disable-next-line import/no-mutable-exports
-let mesh = undef;
-
-let _renderer;
-let _camera;
-let _scene;
-let _particleGeometry;
-
-let _quadScene;
-let _quadCamera;
-let _shadowMatrial;
-
-let _particles;
-let _particlesMaterial;
-let _particlesScene;
-let _depthRenderTarget;
-let _additiveRenderTarget;
-
-let _blurHMaterial;
-let _blurVMaterial;
-let _blurRenderTarget;
-
-let _resolution;
-let _width;
-let _height;
 
 const TEXTURE_WIDTH = settings.simulatorTextureWidth;
 const TEXTURE_HEIGHT = settings.simulatorTextureHeight;
 const AMOUNT = TEXTURE_WIDTH * TEXTURE_HEIGHT;
 
-function _initGeometry() {
-  const position = new Float32Array(AMOUNT * 3);
-  let i3;
-  const baseSize = settings.particleSize;
-  for (let i = 0; i < AMOUNT; i += 1) {
-    i3 = i * 3;
-    position[i3 + 0] = ((i % TEXTURE_WIDTH) + 0.5) / TEXTURE_WIDTH;
-    position[i3 + 1] = (~~(i / TEXTURE_WIDTH) + 0.5) / TEXTURE_HEIGHT;
-    position[i3 + 2] = (20000 + Math.pow(Math.random(), 5) * 24000) / baseSize; // size
-  }
-  _particleGeometry = new THREE.BufferGeometry();
-  _particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
-}
+class Particles {
+  /* let undef;
 
-function _initDepthRenderTarget() {
-  const material = new THREE.ShaderMaterial({
-    uniforms: {
-      uParticleSize: { type: 'f', value: 1 },
-      uTexturePosition: { type: 't', value: undef },
-      uTexturePrevPosition: { type: 't', value: undef },
-      uCameraPosition: { type: 'v3', value: _camera.position },
-      uPrevModelViewMatrix: { type: 'm4', value: new THREE.Matrix4() },
-      uMotionMultiplier: { type: 'f', value: 1 },
-    },
-    vertexShader: shaderParse(particlesDepthvert),
-    fragmentShader: shaderParse(particlesDepthfrag),
-    blending: THREE.NoBlending,
-  });
+// eslint-disable-next-line import/no-mutable-exports
+let mesh = undef;
 
-  _depthRenderTarget = new THREE.WebGLRenderTarget(1, 1, {
-    minFilter: THREE.NearestFilter,
-    magFilter: THREE.NearestFilter,
-    type: THREE.FloatType,
-    format: THREE.RGBAFormat,
-    stencilBuffer: false,
-    transparent: true,
-  });
-  _depthRenderTarget.material = material;
-  settings.distanceMap = _depthRenderTarget;
-}
+let this.renderer;
+let this.camera;
+let this.scene;
+let this.particleGeometry;
 
-function _initAdditiveRenderTarget() {
-  const material = new THREE.ShaderMaterial({
-    uniforms: {
-      uTexturePosition: { type: 't', value: undef },
-      uDepth: { type: 't', value: _depthRenderTarget },
-      uResolution: { type: 'v2', value: _resolution },
-      uParticleSize: { type: 'f', value: 1 },
-    },
-    vertexShader: shaderParse(particlesAdditivevert),
-    fragmentShader: shaderParse(particlesAdditivefrag),
+let this.quadScene;
+let this.quadCamera;
+let this.shadowMatrial;
 
-    blending: THREE.CustomBlending,
-    blendEquation: THREE.AddEquation,
-    blendSrc: THREE.OneFactor,
-    blendDst: THREE.OneFactor,
-    blendEquationAlpha: THREE.AddEquation,
-    blendSrcAlpha: THREE.OneFactor,
-    blendDstAlpha: THREE.OneFactor,
-    transparent: true,
-  });
+let this.particles;
+let this.particlesMaterial;
+let this.particlesScene;
+let this.depthRenderTarget;
+let this.additiveRenderTarget;
 
-  _additiveRenderTarget = new THREE.WebGLRenderTarget(1, 1, {
-    minFilter: THREE.NearestFilter,
-    magFilter: THREE.NearestFilter,
-    format: THREE.RGBAFormat,
-    type: THREE.FloatType,
-    depthWrite: false,
-    depthBuffer: false,
-    stencilBuffer: false,
-  });
-  _additiveRenderTarget.material = material;
-}
+let this.blurHMaterial;
+let this.blurVMaterial;
+let this.blurRenderTarget;
 
-function _initBlurRenderTarget() {
-  _blurHMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      tDiffuse: { type: 't', value: _additiveRenderTarget },
-      uResolution: { type: 'v2', value: _resolution },
-      uOffset: { type: 'f', value: 0 },
-    },
-    vertexShader: shaderParse(blurvert),
-    fragmentShader: shaderParse(blurHfrag),
-    transparent: true,
-    blending: THREE.NoBlending,
-  });
+let this.resolution;
+let this.width;
+let this.height; */
 
-  _blurRenderTarget = new THREE.WebGLRenderTarget(1, 1, {
-    minFilter: THREE.NearestFilter,
-    magFilter: THREE.NearestFilter,
-    format: THREE.RGBAFormat,
-    type: THREE.FloatType,
-    stencilBuffer: false,
-  });
-
-  _blurVMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      tDiffuse: { type: 't', value: _blurRenderTarget },
-      uResolution: { type: 'v2', value: _resolution },
-      uOffset: { type: 'f', value: 0 },
-    },
-    vertexShader: shaderParse(blurvert),
-    fragmentShader: shaderParse(blurVfrag),
-    transparent: true,
-    blending: THREE.NoBlending,
-  });
-}
-
-function init(renderer, camera, scene) {
-  _quadCamera = new THREE.Camera();
-  _quadCamera.position.z = 1;
-  _particlesScene = new THREE.Scene();
-  _quadScene = new THREE.Scene();
-  _camera = camera;
-  _scene = scene;
-  _renderer = renderer;
-  _resolution = new THREE.Vector2();
-
-  _initGeometry();
-  _initDepthRenderTarget();
-  _initAdditiveRenderTarget();
-  _initBlurRenderTarget();
-
-  _particles = new THREE.Points(_particleGeometry, _additiveRenderTarget.material);
-  _particles.frustumCulled = false;
-
-  const geomtry = new THREE.PlaneBufferGeometry(2, 2);
-  const uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib.ambient, THREE.UniformsLib.lights]);
-  uniforms.uDepth = { type: 't', value: _depthRenderTarget };
-  uniforms.uAdditive = { type: 't', value: _additiveRenderTarget };
-  uniforms.uResolution = { type: 'v2', value: _resolution };
-  uniforms.uCameraInverse = { type: 'm4', value: _camera.matrixWorld };
-  uniforms.uCameraRotationInverse = { type: 'm4', value: new THREE.Matrix4() };
-  uniforms.uProjectMatrix = { type: 'm4', value: _camera.projectionMatrix };
-  uniforms.uProjectMatrixInverse = { type: 'm4', value: new THREE.Matrix4() };
-  uniforms.uFogColor = { type: 'c', value: new THREE.Color() };
-  uniforms.uColor1 = { type: 'c', value: new THREE.Color() };
-  uniforms.uColor2 = { type: 'c', value: new THREE.Color() };
-  // uniforms.uLightPosition = { type: 'v3', value: lights.mesh.position };
-
-  _particlesMaterial = new THREE.ShaderMaterial({
-    uniforms,
-    transparent: true,
-    depthWrite: false,
-    vertexShader: shaderParse(particlesvert),
-    fragmentShader: shaderParse(particlesfrag),
-  });
-  mesh = exports.mesh = new THREE.Mesh(geomtry, _particlesMaterial);
-  _quadScene.add(mesh);
-
-  _shadowMatrial = new THREE.ShaderMaterial({
-    uniforms: {
-      uTexturePosition: { type: 't', value: null },
-      uParticleSize: { type: 'f', value: 1 },
-    },
-    vertexShader: shaderParse(shadowvert),
-    fragmentShader: shaderParse(shadowfrag),
-    blending: THREE.NoBlending,
-    depthTest: true,
-    depthWrite: true,
-  });
-  _particles.castShadow = true;
-  _particles.customDepthMaterial = _shadowMatrial;
-}
-
-function resize(width, height) {
-  _width = width;
-  _height = height;
-  _resolution.set(width, height);
-  _depthRenderTarget.setSize(width, height);
-  _additiveRenderTarget.setSize(width, height);
-  _blurRenderTarget.setSize(width, height);
-}
-
-function preRender() {
-  _particlesScene.add(_particles);
-  const { autoClearColor } = _renderer;
-  const clearColor = _renderer.getClearColor().getHex();
-  const clearAlpha = _renderer.getClearAlpha();
-
-  _renderer.setClearColor(0, 0);
-  _renderer.clearTarget(_depthRenderTarget, true, true, true);
-  _particles.material = _depthRenderTarget.material;
-  _depthRenderTarget.material.uniforms.uTexturePrevPosition.value = simulator.prevPositionRenderTarget;
-  _depthRenderTarget.material.uniforms.uTexturePosition.value = simulator.positionRenderTarget;
-  _depthRenderTarget.material.uniforms.uParticleSize.value = settings.particleSize;
-  _renderer.render(_particlesScene, _camera, _depthRenderTarget);
-
-  if (!motionBlur.skipMatrixUpdate) {
-    _depthRenderTarget.material.uniforms.uPrevModelViewMatrix.value.copy(_particles.modelViewMatrix);
+  initGeometry() {
+    const position = new Float32Array(AMOUNT * 3);
+    let i3;
+    const baseSize = settings.particleSize;
+    for (let i = 0; i < AMOUNT; i += 1) {
+      i3 = i * 3;
+      position[i3 + 0] = ((i % TEXTURE_WIDTH) + 0.5) / TEXTURE_WIDTH;
+      position[i3 + 1] = (~~(i / TEXTURE_WIDTH) + 0.5) / TEXTURE_HEIGHT;
+      // eslint-disable-next-line no-restricted-properties
+      position[i3 + 2] = (20000 + Math.pow(Math.random(), 5) * 24000) / baseSize; // size
+    }
+    this.particleGeometry = new THREE.BufferGeometry();
+    this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
   }
 
-  _renderer.setClearColor(0, 0);
-  _renderer.clearTarget(_additiveRenderTarget, true, true, true);
+  initDepthRenderTarget() {
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uParticleSize: { type: 'f', value: 1 },
+        uTexturePosition: { type: 't', value: this.undef },
+        uTexturePrevPosition: { type: 't', value: this.undef },
+        uCameraPosition: { type: 'v3', value: this.camera.position },
+        uPrevModelViewMatrix: { type: 'm4', value: new THREE.Matrix4() },
+        uMotionMultiplier: { type: 'f', value: 1 },
+      },
+      vertexShader: shaderParse(particlesDepthvert),
+      fragmentShader: shaderParse(particlesDepthfrag),
+      blending: THREE.NoBlending,
+    });
 
-  _particles.material = _additiveRenderTarget.material;
-  _additiveRenderTarget.material.uniforms.uTexturePosition.value = simulator.positionRenderTarget;
-  _additiveRenderTarget.material.uniforms.uParticleSize.value = settings.particleSize;
-  _renderer.render(_particlesScene, _camera, _additiveRenderTarget);
-
-  const blurRadius = settings.blur;
-
-  if (blurRadius) {
-    _blurHMaterial.uniforms.uOffset.value = blurRadius / _width;
-    _blurVMaterial.uniforms.uOffset.value = blurRadius / _height;
-
-    _renderer.clearTarget(_blurRenderTarget, true, true, true);
-    mesh.material = _blurHMaterial;
-    _renderer.render(_quadScene, _quadCamera, _blurRenderTarget);
-
-    _renderer.clearTarget(_additiveRenderTarget, true, true, true);
-    mesh.material = _blurVMaterial;
-    _renderer.render(_quadScene, _quadCamera, _additiveRenderTarget);
-    mesh.material = _particlesMaterial;
+    this.depthRenderTarget = new THREE.WebGLRenderTarget(1, 1, {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      type: THREE.FloatType,
+      format: THREE.RGBAFormat,
+      stencilBuffer: false,
+      transparent: true,
+    });
+    this.depthRenderTarget.material = material;
+    settings.distanceMap = this.depthRenderTarget;
   }
 
-  _renderer.setClearColor(clearColor, clearAlpha);
-  _renderer.autoClearColor = autoClearColor;
-  _renderer.setViewport(0, 0, _width, _height);
+  initAdditiveRenderTarget() {
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexturePosition: { type: 't', value: this.undef },
+        uDepth: { type: 't', value: this.depthRenderTarget.texture },
+        uResolution: { type: 'v2', value: this.resolution },
+        uParticleSize: { type: 'f', value: 1 },
+      },
+      vertexShader: shaderParse(particlesAdditivevert),
+      fragmentShader: shaderParse(particlesAdditivefrag),
 
-  _particles.material = settings.ignoredMaterial;
-  _shadowMatrial.uniforms.uTexturePosition.value = simulator.positionRenderTarget;
-  _shadowMatrial.uniforms.uParticleSize.value = settings.particleSize;
-  _scene.add(_particles);
+      blending: THREE.CustomBlending,
+      blendEquation: THREE.AddEquation,
+      blendSrc: THREE.OneFactor,
+      blendDst: THREE.OneFactor,
+      blendEquationAlpha: THREE.AddEquation,
+      blendSrcAlpha: THREE.OneFactor,
+      blendDstAlpha: THREE.OneFactor,
+      transparent: true,
+    });
+
+    this.additiveRenderTarget = new THREE.WebGLRenderTarget(1, 1, {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      depthWrite: false,
+      depthBuffer: false,
+      stencilBuffer: false,
+    });
+    this.additiveRenderTarget.material = material;
+  }
+
+  initBlurRenderTarget() {
+    this.blurHMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        tDiffuse: { type: 't', value: this.additiveRenderTarget.texture },
+        uResolution: { type: 'v2', value: this.resolution },
+        uOffset: { type: 'f', value: 0 },
+      },
+      vertexShader: shaderParse(blurvert),
+      fragmentShader: shaderParse(blurHfrag),
+      transparent: true,
+      blending: THREE.NoBlending,
+    });
+
+    this.blurRenderTarget = new THREE.WebGLRenderTarget(1, 1, {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      stencilBuffer: false,
+    });
+
+    this.blurVMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        tDiffuse: { type: 't', value: this.blurRenderTarget.texture },
+        uResolution: { type: 'v2', value: this.resolution },
+        uOffset: { type: 'f', value: 0 },
+      },
+      vertexShader: shaderParse(blurvert),
+      fragmentShader: shaderParse(blurVfrag),
+      transparent: true,
+      blending: THREE.NoBlending,
+    });
+  }
+
+  init(renderer, camera, scene, simulator) {
+    this.simulator = simulator;
+    this.quadCamera = new THREE.Camera();
+    this.quadCamera.position.z = 1;
+    this.particlesScene = new THREE.Scene();
+    this.quadScene = new THREE.Scene();
+    this.camera = camera;
+    this.scene = scene;
+    this.renderer = renderer;
+    this.resolution = new THREE.Vector2();
+
+    this.initGeometry();
+    this.initDepthRenderTarget();
+    this.initAdditiveRenderTarget();
+    this.initBlurRenderTarget();
+
+    this.particles = new THREE.Points(this.particleGeometry, this.additiveRenderTarget.material);
+    this.particles.frustumCulled = false;
+
+    const geomtry = new THREE.PlaneBufferGeometry(2, 2);
+    const uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib.ambient, THREE.UniformsLib.lights]);
+    uniforms.uDepth = { type: 't', value: this.depthRenderTarget.texture };
+    uniforms.uAdditive = { type: 't', value: this.additiveRenderTarget.texture };
+    uniforms.uResolution = { type: 'v2', value: this.resolution };
+    uniforms.uCameraInverse = { type: 'm4', value: this.camera.matrixWorld };
+    uniforms.uCameraRotationInverse = { type: 'm4', value: new THREE.Matrix4() };
+    uniforms.uProjectMatrix = { type: 'm4', value: this.camera.projectionMatrix };
+    uniforms.uProjectMatrixInverse = { type: 'm4', value: new THREE.Matrix4() };
+    uniforms.uFogColor = { type: 'c', value: new THREE.Color() };
+    uniforms.uColor1 = { type: 'c', value: new THREE.Color() };
+    uniforms.uColor2 = { type: 'c', value: new THREE.Color() };
+    // uniforms.uLightPosition = { type: 'v3', value: lights.mesh.position };
+
+    this.particlesMaterial = new THREE.ShaderMaterial({
+      uniforms,
+      transparent: true,
+      depthWrite: false,
+      vertexShader: shaderParse(particlesvert),
+      fragmentShader: shaderParse(particlesfrag),
+    });
+    const mtl = new THREE.MeshStandardMaterial();
+    mtl.uniforms = { uFogColor: { value: null } };
+    this.mesh = exports.mesh = new THREE.Mesh(geomtry, mtl);
+    this.quadScene.add(this.mesh);
+
+    this.shadowMatrial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexturePosition: { type: 't', value: null },
+        uParticleSize: { type: 'f', value: 1 },
+      },
+      vertexShader: shaderParse(shadowvert),
+      fragmentShader: shaderParse(shadowfrag),
+      blending: THREE.NoBlending,
+      depthTest: true,
+      depthWrite: true,
+    });
+    this.particles.castShadow = true;
+    this.particles.customDepthMaterial = this.shadowMatrial;
+  }
+
+  resize(width, height) {
+    this.width = width;
+    this.height = height;
+    this.resolution.set(width, height);
+    this.depthRenderTarget.setSize(width, height);
+    this.additiveRenderTarget.setSize(width, height);
+    this.blurRenderTarget.setSize(width, height);
+  }
+
+  preRender() {
+    this.particlesScene.add(this.particles);
+    const { autoClearColor } = this.renderer;
+    const clearColor = this.renderer.getClearColor().getHex();
+    const clearAlpha = this.renderer.getClearAlpha();
+
+    this.renderer.setClearColor(0, 0);
+    this.renderer.setRenderTarget(this.depthRenderTarget);
+    this.renderer.clear(true, true, true);
+    this.particles.material = this.depthRenderTarget.material;
+    this.depthRenderTarget.material.uniforms.uTexturePrevPosition.value = this.simulator.prevPositionRenderTarget.texture;
+    this.depthRenderTarget.material.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
+    this.depthRenderTarget.material.uniforms.uParticleSize.value = settings.particleSize;
+    this.renderer.render(this.particlesScene, this.camera);
+    this.renderer.setRenderTarget(null);
+
+    /* if (!motionBlur.skipMatrixUpdate) {
+      this.depthRenderTarget.material.uniforms.uPrevModelViewMatrix.value.copy(this.particles.modelViewMatrix);
+    } */
+
+    this.renderer.setClearColor(0, 0);
+    this.renderer.setRenderTarget(this.additiveRenderTarget);
+    this.renderer.clear(true, true, true);
+    this.particles.material = this.additiveRenderTarget.material;
+    this.additiveRenderTarget.material.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
+    this.additiveRenderTarget.material.uniforms.uParticleSize.value = settings.particleSize;
+    this.renderer.render(this.particlesScene, this.camera);
+    this.renderer.setRenderTarget(null);
+
+    const blurRadius = settings.blur;
+
+    if (blurRadius) {
+      this.blurHMaterial.uniforms.uOffset.value = blurRadius / this.width;
+      this.blurVMaterial.uniforms.uOffset.value = blurRadius / this.height;
+
+      this.renderer.setRenderTarget(this.blurRenderTarget);
+      this.renderer.clear(true, true, true);
+      this.mesh.material = this.blurHMaterial;
+      this.renderer.render(this.quadScene, this.quadCamera);
+
+      this.renderer.setRenderTarget(this.additiveRenderTarget);
+      this.renderer.clear(true, true, true);
+      this.mesh.material = this.blurVMaterial;
+      this.renderer.render(this.quadScene, this.quadCamera);
+      this.mesh.material = this.particlesMaterial;
+    }
+
+    this.renderer.setClearColor(clearColor, clearAlpha);
+    this.renderer.autoClearColor = autoClearColor;
+    this.renderer.setViewport(0, 0, this.width, this.height);
+
+    // this.particles.material = settings.ignoredMaterial;
+    this.shadowMatrial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
+    this.shadowMatrial.uniforms.uParticleSize.value = settings.particleSize;
+    this.scene.add(this.particles);
+    this.renderer.setRenderTarget(null);
+  }
+
+  update(renderTarget) {
+    const { autoClearColor } = this.renderer;
+    const clearColor = this.renderer.getClearColor().getHex();
+    const clearAlpha = this.renderer.getClearAlpha();
+    this.renderer.autoClearColor = false;
+
+    this.particlesMaterial.uniforms.uColor1.value.setStyle(settings.color1);
+    this.particlesMaterial.uniforms.uColor2.value.setStyle(settings.color2);
+
+    this.particlesMaterial.uniforms.spotShadowMap.value = [lights.spot.shadow.map];
+    this.particlesMaterial.uniforms.spotShadowMatrix.value = [lights.spot.shadow.matrix];
+
+    this.particlesMaterial.uniforms.uCameraRotationInverse.value.extractRotation(this.camera.matrixWorld);
+    this.particlesMaterial.uniforms.uProjectMatrixInverse.value.getInverse(this.camera.projectionMatrix);
+    this.renderer.setRenderTarget(renderTarget);
+    this.renderer.render(this.quadScene, this.quadCamera);
+    this.renderer.setRenderTarget(null);
+    this.renderer.setClearColor(clearColor, clearAlpha);
+    this.renderer.autoClearColor = autoClearColor;
+  }
 }
 
-function update(renderTarget) {
-  const { autoClearColor } = _renderer;
-  const clearColor = _renderer.getClearColor().getHex();
-  const clearAlpha = _renderer.getClearAlpha();
-  _renderer.autoClearColor = false;
+export default Particles;
 
-  _particlesMaterial.uniforms.uColor1.value.setStyle(settings.color1);
-  _particlesMaterial.uniforms.uColor2.value.setStyle(settings.color2);
-
-  _particlesMaterial.uniforms.spotShadowMap.value = [lights.spot.shadow.map];
-  _particlesMaterial.uniforms.spotShadowMatrix.value = [lights.spot.shadow.matrix];
-
-  _particlesMaterial.uniforms.uCameraRotationInverse.value.extractRotation(_camera.matrixWorld);
-  _particlesMaterial.uniforms.uProjectMatrixInverse.value.getInverse(_camera.projectionMatrix);
-
-  _renderer.render(_quadScene, _quadCamera, renderTarget);
-
-  _renderer.setClearColor(clearColor, clearAlpha);
-  _renderer.autoClearColor = autoClearColor;
-}
-
-export default { init, resize, preRender, update, mesh };
+// export default { init, resize, preRender, update, mesh };

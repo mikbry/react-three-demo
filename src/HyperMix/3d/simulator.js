@@ -9,11 +9,10 @@ import positionfrag from '../glsl/position.frag';
 
 const TEXTURE_WIDTH = settings.simulatorTextureWidth;
 const TEXTURE_HEIGHT = settings.simulatorTextureHeight;
-const AMOUNT = (exports.AMOUNT = TEXTURE_WIDTH * TEXTURE_HEIGHT);
+const AMOUNT = TEXTURE_WIDTH * TEXTURE_HEIGHT;
 
 class Simulator {
   /* let undef;
-
 
 const positionRenderTarget = undef;
 const prevPositionRenderTarget = undef;
@@ -34,8 +33,10 @@ let this.followPoint; */
 
   copyTexture(input, output) {
     this.mesh.material = this.copyShader;
-    this.copyShader.uniforms.texture.value = input;
-    this.renderer.render(this.scene, this.camera, output);
+    this.copyShader.uniforms.texture.value = input.texture;
+    this.renderer.setRenderTarget(output);
+    this.renderer.render(this.scene, this.camera);
+    this.renderer.setRenderTarget(null);
   }
 
   createPositionTexture() {
@@ -73,16 +74,12 @@ let this.followPoint; */
     const rawShaderPrefix = `precision ${settings.capablePrecision} float;\n`;
 
     const gl = this.renderer.getContext();
-    if (!gl.getParameter(gl.MAXthis.VERTEXthis.TEXTUREthis.IMAGEthis.UNITS)) {
+    if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
       throw new Error('No support for vertex shader textures!');
     }
-    if (!gl.getExtension('OESthis.texturethis.float')) {
-      throw new Error('No OESthis.texturethis.float support for float textures!');
+    if (!gl.getExtension('OES_texture_float')) {
+      throw new Error('No OES_texturet_float support for float textures!');
     }
-    // if ( !gl.getExtension( 'EXTthis.blendthis.minmax' )) {
-    //     alert( 'No EXTthis.blendthis.minmax support!' );
-    //     // return;
-    // }
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.Camera();
@@ -93,6 +90,7 @@ let this.followPoint; */
         resolution: { type: 'v2', value: new THREE.Vector2(TEXTURE_WIDTH, TEXTURE_HEIGHT) },
         texture: { type: 't', value: this.undef },
       },
+      name: 'simulator.copyMaterial',
       vertexShader: rawShaderPrefix + shaderParse(quadvert),
       fragmentShader: rawShaderPrefix + shaderParse(throughfrag),
     });
@@ -112,10 +110,11 @@ let this.followPoint; */
 
         uBoundBox: { type: 'v3', value: volume.boundBox },
         uSliceInfo: { type: 'v4', value: volume.sliceInfo },
-        uTextureVolume: { type: 't', value: volume.renderTarget },
+        uTextureVolume: { type: 't', value: volume.renderTarget.texture },
         uEmitterDistanceRatio: { type: 'f', value: 0 },
         uEmitterSpeed: { type: 'f', value: 0 },
       },
+      name: 'positionMaterial',
       vertexShader: rawShaderPrefix + shaderParse(quadvert),
       fragmentShader: rawShaderPrefix + shaderParse(positionfrag),
       blending: THREE.NoBlending,
@@ -134,13 +133,11 @@ let this.followPoint; */
       magFilter: THREE.NearestFilter,
       format: THREE.RGBAFormat,
       type: THREE.FloatType,
-      depthWrite: false,
-      depthBuffer: false,
-      stencilBuffer: false,
     });
     this.positionRenderTarget2 = this.positionRenderTarget.clone();
     this.copyTexture(this.createPositionTexture(), this.positionRenderTarget);
     this.copyTexture(this.positionRenderTarget, this.positionRenderTarget2);
+    this.renderer.setRenderTarget(null);
   }
 
   updatePosition(dt) {
@@ -150,10 +147,12 @@ let this.followPoint; */
     this.positionRenderTarget2 = tmp;
 
     this.mesh.material = this.positionShader;
-    this.positionShader.uniforms.textureDefaultPosition.value = this.textureDefaultPosition;
-    this.positionShader.uniforms.texturePosition.value = this.positionRenderTarget2;
+    this.positionShader.uniforms.textureDefaultPosition.value = this.textureDefaultPosition.texture;
+    this.positionShader.uniforms.texturePosition.value = this.positionRenderTarget2.texture;
     this.positionShader.uniforms.time.value += dt * 0.001;
-    this.renderer.render(this.scene, this.camera, this.positionRenderTarget);
+    this.renderer.setRenderTarget(this.positionRenderTarget);
+    this.renderer.render(this.scene, this.camera);
+    this.renderer.setRenderTarget(null);
   }
 
   update(_dt) {
@@ -168,16 +167,14 @@ let this.followPoint; */
       this.positionShader.uniforms.dieSpeed.value = settings.dieSpeed;
       this.positionShader.uniforms.radius.value = settings.radius;
       this.positionShader.uniforms.speed.value = settings.speed;
-      this.positionShader.uniforms.initAnimation.value = exports.initAnimation;
+      this.positionShader.uniforms.initAnimation.value = this.initAnimation;
       this.positionShader.uniforms.uEmitterDistanceRatio.value = settings.emitterDistanceRatio;
       this.positionShader.uniforms.uEmitterSpeed.value = settings.emitterSpeed;
-      this.positionShader.uniforms.deltaRatio.value = settings.deltaRatio;
-
+      this.positionShader.uniforms.deltaRatio.value = _dt / 16.666667;
       this.updatePosition(dt);
 
       this.fboHelper.setColorState(state);
-      exports.positionRenderTarget = this.positionRenderTarget;
-      exports.prevPositionRenderTarget = this.positionRenderTarget2;
+      this.prevPositionRenderTarget = this.positionRenderTarget2;
     }
   }
 }

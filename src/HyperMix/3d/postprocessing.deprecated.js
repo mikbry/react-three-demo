@@ -57,6 +57,7 @@ function init(renderer) {
       uResolution: { type: 'v2', value: new THREE.Vector2(1, 1) },
       uDiffuse: { type: 't', value: undef },
     },
+    name: 'fxaa',
     vertexShader: vs,
     fragmentShader: rawShaderPrefix + shaderParse(fxaafrag),
   });
@@ -68,6 +69,7 @@ function init(renderer) {
       uReduction: { type: 'f', value: 1.0 },
       uBoost: { type: 'f', value: 1.0 },
     },
+    name: 'vignette',
     vertexShader: vs,
     fragmentShader: rawShaderPrefix + shaderParse(vignettefrag),
   });
@@ -82,6 +84,7 @@ function init(renderer) {
       uMouse: { type: 'v2', value: settings.mouse },
       uAmount: { type: 'f', value: 1 },
     },
+    name: 'dof',
     vertexShader: vs,
     fragmentShader: rawShaderPrefix + shaderParse(doffrag),
   });
@@ -93,6 +96,7 @@ function init(renderer) {
       uDistance: { type: 't', value: undef },
       uMouse: { type: 'v2', value: settings.mouse },
     },
+    name: 'depth1',
     vertexShader: vs,
     transparent: true,
     blending: THREE.NoBlending,
