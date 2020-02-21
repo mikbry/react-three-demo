@@ -23,34 +23,6 @@ const TEXTURE_HEIGHT = settings.simulatorTextureHeight;
 const AMOUNT = TEXTURE_WIDTH * TEXTURE_HEIGHT;
 
 class Particles {
-  /* let undef;
-
-// eslint-disable-next-line import/no-mutable-exports
-let mesh = undef;
-
-let this.renderer;
-let this.camera;
-let this.scene;
-let this.particleGeometry;
-
-let this.quadScene;
-let this.quadCamera;
-let this.shadowMatrial;
-
-let this.particles;
-let this.particlesMaterial;
-let this.particlesScene;
-let this.depthRenderTarget;
-let this.additiveRenderTarget;
-
-let this.blurHMaterial;
-let this.blurVMaterial;
-let this.blurRenderTarget;
-
-let this.resolution;
-let this.width;
-let this.height; */
-
   initGeometry() {
     const position = new Float32Array(AMOUNT * 3);
     let i3;
@@ -60,7 +32,8 @@ let this.height; */
       position[i3 + 0] = ((i % TEXTURE_WIDTH) + 0.5) / TEXTURE_WIDTH;
       position[i3 + 1] = (~~(i / TEXTURE_WIDTH) + 0.5) / TEXTURE_HEIGHT;
       // eslint-disable-next-line no-restricted-properties
-      position[i3 + 2] = (20000 + Math.pow(Math.random(), 5) * 24000) / baseSize; // size
+      position[i3 + 2] = (20000 + Math.pow(Math.random(), 5) * 24000) / baseSize / 10; // size
+      // console.log('position', i, position[i3], position[i3 + 1], position[i3 + 2], AMOUNT);
     }
     this.particleGeometry = new THREE.BufferGeometry();
     this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
@@ -189,10 +162,9 @@ let this.height; */
     uniforms.uProjectMatrix = { type: 'm4', value: this.camera.projectionMatrix };
     uniforms.uProjectMatrixInverse = { type: 'm4', value: new THREE.Matrix4() };
     uniforms.uFogColor = { type: 'c', value: new THREE.Color() };
-    uniforms.uColor1 = { type: 'c', value: new THREE.Color() };
-    uniforms.uColor2 = { type: 'c', value: new THREE.Color() };
-    // uniforms.uLightPosition = { type: 'v3', value: lights.mesh.position };
-
+    uniforms.uColor1 = { type: 'c', value: new THREE.Color(settings.color1) };
+    uniforms.uColor2 = { type: 'c', value: new THREE.Color(settings.color2) };
+    uniforms.uLightPosition = { type: 'v3', value: lights.mesh.position };
     this.particlesMaterial = new THREE.ShaderMaterial({
       uniforms,
       transparent: true,
@@ -200,12 +172,10 @@ let this.height; */
       vertexShader: shaderParse(particlesvert),
       fragmentShader: shaderParse(particlesfrag),
     });
-    const mtl = new THREE.MeshStandardMaterial();
-    mtl.uniforms = { uFogColor: { value: null } };
-    this.mesh = exports.mesh = new THREE.Mesh(geomtry, mtl);
+    this.mesh = new THREE.Mesh(geomtry, this.particlesMaterial);
     this.quadScene.add(this.mesh);
 
-    this.shadowMatrial = new THREE.ShaderMaterial({
+    this.shadowMaterial = new THREE.ShaderMaterial({
       uniforms: {
         uTexturePosition: { type: 't', value: null },
         uParticleSize: { type: 'f', value: 1 },
@@ -217,7 +187,7 @@ let this.height; */
       depthWrite: true,
     });
     this.particles.castShadow = true;
-    this.particles.customDepthMaterial = this.shadowMatrial;
+    this.particles.customDepthMaterial = this.shadowMaterial;
   }
 
   resize(width, height) {
@@ -281,8 +251,8 @@ let this.height; */
     this.renderer.setViewport(0, 0, this.width, this.height);
 
     // this.particles.material = settings.ignoredMaterial;
-    this.shadowMatrial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
-    this.shadowMatrial.uniforms.uParticleSize.value = settings.particleSize;
+    this.shadowMaterial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
+    this.shadowMaterial.uniforms.uParticleSize.value = settings.particleSize;
     this.scene.add(this.particles);
     this.renderer.setRenderTarget(null);
   }
@@ -296,7 +266,7 @@ let this.height; */
     this.particlesMaterial.uniforms.uColor1.value.setStyle(settings.color1);
     this.particlesMaterial.uniforms.uColor2.value.setStyle(settings.color2);
 
-    this.particlesMaterial.uniforms.spotShadowMap.value = [lights.spot.shadow.map];
+    this.particlesMaterial.uniforms.spotShadowMap.value = [lights.spot.shadow.map.texture];
     this.particlesMaterial.uniforms.spotShadowMatrix.value = [lights.spot.shadow.matrix];
 
     this.particlesMaterial.uniforms.uCameraRotationInverse.value.extractRotation(this.camera.matrixWorld);
@@ -310,5 +280,3 @@ let this.height; */
 }
 
 export default Particles;
-
-// export default { init, resize, preRender, update, mesh };

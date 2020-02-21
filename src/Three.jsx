@@ -13,7 +13,11 @@ const Three = () => {
     let height = mount.current.clientHeight;
     let frameId;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, precision: 'mediump' });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      preserveDrawingBuffer: true,
+      premultipliedAlpha: false,
+    });
     const scene = new Scene(renderer);
     scene.init(width, height);
     renderer.setClearColor(scene.background.color);
@@ -21,8 +25,10 @@ const Three = () => {
 
     // renderer.physicallyCorrectLights = true;
     // renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.autoClearColor = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMapSoft = true;
+    // renderer.shadowMapSoft = true;
     renderer.toneMapping = THREE.ReinhardToneMapping;
 
     /* if (typeof __THREE_DEVTOOLS__ !== 'undefined') {

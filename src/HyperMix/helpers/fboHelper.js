@@ -1,21 +1,9 @@
 import * as THREE from 'three';
 
-import quadvert from './quad.vert';
-import quadfrag from './quad.frag';
+import quadvert from '../3d/quad.vert';
+import quadfrag from '../3d/quad.frag';
 
 class FboHelper {
-  /* let undef;
-
-let this.renderer;
-let this.mesh;
-let this.scene;
-let this.camera;
-
-let rawShaderPrefix = undef;
-// eslint-disable-next-line no-unused-vars
-let vertexShader = undef;
-let copyMaterial = undef; */
-
   init(renderer) {
     // ensure it wont initialized twice
     if (this.renderer) return;

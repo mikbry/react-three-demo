@@ -12,31 +12,12 @@ const TEXTURE_HEIGHT = settings.simulatorTextureHeight;
 const AMOUNT = TEXTURE_WIDTH * TEXTURE_HEIGHT;
 
 class Simulator {
-  /* let undef;
-
-const positionRenderTarget = undef;
-const prevPositionRenderTarget = undef;
-const initAnimation = 0;
-
-let this.copyShader;
-let this.positionShader;
-let this.textureDefaultPosition;
-let this.positionRenderTarget;
-let this.positionRenderTarget2;
-
-let this.renderer;
-let this.mesh;
-let this.scene;
-let this.camera;
-// eslint-disable-next-line no-unused-vars
-let this.followPoint; */
-
   copyTexture(input, output) {
     this.mesh.material = this.copyShader;
     this.copyShader.uniforms.texture.value = input.texture;
     this.renderer.setRenderTarget(output);
     this.renderer.render(this.scene, this.camera);
-    this.renderer.setRenderTarget(null);
+    // this.renderer.setRenderTarget(null);
   }
 
   createPositionTexture() {
@@ -88,7 +69,7 @@ let this.followPoint; */
     this.copyShader = new THREE.RawShaderMaterial({
       uniforms: {
         resolution: { type: 'v2', value: new THREE.Vector2(TEXTURE_WIDTH, TEXTURE_HEIGHT) },
-        texture: { type: 't', value: this.undef },
+        texture: { type: 't', value: undefined },
       },
       name: 'simulator.copyMaterial',
       vertexShader: rawShaderPrefix + shaderParse(quadvert),
@@ -98,8 +79,8 @@ let this.followPoint; */
     this.positionShader = new THREE.RawShaderMaterial({
       uniforms: {
         resolution: { type: 'v2', value: new THREE.Vector2(TEXTURE_WIDTH, TEXTURE_HEIGHT) },
-        texturePosition: { type: 't', value: this.undef },
-        textureDefaultPosition: { type: 't', value: this.undef },
+        texturePosition: { type: 't', value: undefined },
+        textureDefaultPosition: { type: 't', value: undefined },
         speed: { type: 'f', value: 0 },
         curlSize: { type: 'f', value: 0 },
         dieSpeed: { type: 'f', value: 0 },
@@ -122,7 +103,6 @@ let this.followPoint; */
       depthWrite: false,
       depthTest: false,
     });
-
     this.mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), this.copyShader);
     this.scene.add(this.mesh);
 
@@ -137,7 +117,7 @@ let this.followPoint; */
     this.positionRenderTarget2 = this.positionRenderTarget.clone();
     this.copyTexture(this.createPositionTexture(), this.positionRenderTarget);
     this.copyTexture(this.positionRenderTarget, this.positionRenderTarget2);
-    this.renderer.setRenderTarget(null);
+    // this.renderer.setRenderTarget(null);
   }
 
   updatePosition(dt) {
@@ -152,7 +132,7 @@ let this.followPoint; */
     this.positionShader.uniforms.time.value += dt * 0.001;
     this.renderer.setRenderTarget(this.positionRenderTarget);
     this.renderer.render(this.scene, this.camera);
-    this.renderer.setRenderTarget(null);
+    // this.renderer.setRenderTarget(null);
   }
 
   update(_dt) {

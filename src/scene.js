@@ -41,11 +41,15 @@ export default class {
     const normalMap = textureLoader.load('/images/flakes.png');
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 5000);
     camera.position.set(140, 20, -40 + WALLWIDTH / 2);
+    /* const camera = new THREE.PerspectiveCamera(45, 1, 10, 5000);
+    camera.position
+      .set(1000, 100, 700)
+      .normalize()
+      .multiplyScalar(3000); */
     const controls = new OrbitControls(camera, this.renderer.domElement);
     controls.target.set(-5, 20, 10);
-
     controls.update();
 
     const bulbGeometry = new THREE.SphereBufferGeometry(2, 16, 8);

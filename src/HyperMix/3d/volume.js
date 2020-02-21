@@ -10,23 +10,6 @@ const TEXTURE_WIDTH = settings.volumeWidth * settings.volumeSliceColumn;
 const TEXTURE_HEIGHT = settings.volumeHeight * settings.volumeSliceRow;
 
 class Volume {
-  /* let undef;
-
-// eslint-disable-next-line no-unused-vars
-let this.viewport;
-let this.renderer;
-let this.mesh;
-let this.scene;
-let this.camera;
-
-const sliceInfo = undef;
-
-let renderTarget = undef;
-// eslint-disable-next-line import/no-mutable-exports
-let resolution = undef;
-// eslint-disable-next-line import/no-mutable-exports
-let boundBox = undef; */
-
   init(renderer, simulator) {
     this.renderer = renderer;
     this.simulator = simulator;
@@ -117,12 +100,12 @@ let boundBox = undef; */
 
     this.renderer.setClearColor(0, 0);
     this.renderer.setRenderTarget(this.renderTarget);
-    // this.renderer.clear();
+    this.renderer.clear();
     this.renderer.setViewport(0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     this.mesh.material.uniforms.texturePosition.value = this.simulator.positionRenderTarget.texture;
-    this.renderer.setRenderTarget(this.renderTarget);
+    // this.renderer.setRenderTarget(this.renderTarget);
     this.renderer.render(this.scene, this.camera);
-    this.renderer.setRenderTarget(null);
+    // this.renderer.setRenderTarget(null);
     this.renderer.setClearColor(clearColor, clearAlpha);
     this.renderer.autoClearColor = autoClearColor;
     this.renderer.setViewport(0, 0, settings.width, settings.height);

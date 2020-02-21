@@ -21,8 +21,8 @@ settings.useStats = false;
 // settings.amountList = keys(amountMap);
 // query.amount = amountMap[query.amount] ? query.amount : '16k';
 // const amountInfo = amountMap[query.amount];
-settings.simulatorTextureWidth = 64; // amountInfo[0];
-settings.simulatorTextureHeight = 64; // amountInfo[1];
+settings.simulatorTextureWidth = 128; // amountInfo[0];
+settings.simulatorTextureHeight = 128; // amountInfo[1];
 
 settings.emitterDistanceRatio = 0.65;
 settings.emitterSpeed = 20.0;
@@ -65,7 +65,6 @@ settings.bloom = false;
 settings.vignette = false;
 settings.vignetteMultiplier = 0.8;
 
-settings.capablePrecision = 'mediump';
 settings.ignoredMaterial = new THREE.Material();
 
 settings.mouse = new THREE.Vector2(0, 0);

@@ -7,7 +7,7 @@ class ParticlesPass extends Effect {
   }
 
   render(dt, renderTarget) {
-    this.particles.update(renderTarget);
+    this.particles.update(renderTarget, dt);
   }
 }
 

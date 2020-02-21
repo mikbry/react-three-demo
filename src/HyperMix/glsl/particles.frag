@@ -155,7 +155,6 @@ void main() {
     float fogFactor = whiteCompliment( exp2( - 0.00075 * 0.00075 * viewPosition.z * viewPosition.z * LOG2 ) );
     color.xyz = mix(color.xyz, uFogColor, pow(fogFactor, 6.5));
 
-
     gl_FragColor = vec4(color.xyz, alpha);
 
 }

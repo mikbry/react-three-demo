@@ -91,7 +91,7 @@ class MotionBlur extends Effect {
         21}\n${motionBlurSamplingfrag}`,
     });
 
-    this.useSampling = false;
+    this.useSampling = true;
 
     // for debug
     this.skipMatrixUpdate = false;
@@ -195,7 +195,7 @@ let _height; */
     } else if (this.prevUseSampling !== this.useSampling) {
       this.resize();
     }
-    const { useSampling } = exports;
+    const { useSampling } = this;
     // var fpsRatio = 1000 / (dt < 16.667 ? 16.667 : dt) / this.targetFPS;
     const state = this.fboHelper.getColorState();
     effectComposer.renderer.setClearColor(0, 1);
@@ -222,7 +222,7 @@ let _height; */
       effectComposer.renderer.setClearColor(0, 0);
       effectComposer.renderer.setRenderTarget(this.linesRenderTarget);
       effectComposer.renderer.clear(true, true, true);
-      // effectComposer.renderer.render(this.linesScene, this.linesCamera);
+      effectComposer.renderer.render(this.linesScene, this.linesCamera);
       effectComposer.renderer.setRenderTarget(null);
     }
 

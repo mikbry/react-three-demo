@@ -8,9 +8,6 @@ import ParticlesPass from './particlesPass';
 const effectComposer = require('./effectComposer');
 
 class PostProcessing {
-  /* let undef;
-exports.visualizeTarget = undef; */
-
   init(renderer, scene, camera, fboHelper, particles) {
     this.fboHelper = fboHelper;
     effectComposer.init(renderer, scene, camera, fboHelper);
@@ -46,12 +43,9 @@ exports.visualizeTarget = undef; */
     effectComposer.renderQueue(dt);
 
     if (this.visualizeTarget) {
-      this.fboHelper.copy(exports.visualizeTarget.texture);
+      this.fboHelper.copy(this.visualizeTarget.texture);
     }
   }
 }
 
-/* exports.init = init;
-exports.resize = resize;
-exports.render = render; */
 export default PostProcessing;
