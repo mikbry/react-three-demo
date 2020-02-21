@@ -68,7 +68,7 @@ class Volume {
     }
 
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setDynamic(true));
 
     // var rawShaderPrefix = 'precision ' + renderer.capabilities.precision + ' float;\n';
     const material = new THREE.ShaderMaterial({

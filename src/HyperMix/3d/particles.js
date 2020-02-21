@@ -36,7 +36,7 @@ class Particles {
       // console.log('position', i, position[i3], position[i3 + 1], position[i3 + 2], AMOUNT);
     }
     this.particleGeometry = new THREE.BufferGeometry();
-    this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
+    this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3).setDynamic(true));
   }
 
   initDepthRenderTarget() {
@@ -153,7 +153,14 @@ class Particles {
     this.particles.frustumCulled = false;
 
     const geomtry = new THREE.PlaneBufferGeometry(2, 2);
-    const uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib.ambient, THREE.UniformsLib.lights]);
+    const uniforms = THREE.UniformsUtils.merge([
+      THREE.UniformsLib.ambient,
+      THREE.UniformsLib.lights,
+      THREE.UniformsLib.shadowmap,
+    ]);
+    uniforms.spotShadowMap = { type: 'tv', value: undefined };
+    uniforms.spotShadowMatrix = { type: 'm4v', value: undefined };
+
     uniforms.uDepth = { type: 't', value: this.depthRenderTarget.texture };
     uniforms.uAdditive = { type: 't', value: this.additiveRenderTarget.texture };
     uniforms.uResolution = { type: 'v2', value: this.resolution };
@@ -171,7 +178,9 @@ class Particles {
       depthWrite: false,
       vertexShader: shaderParse(particlesvert),
       fragmentShader: shaderParse(particlesfrag),
+      /* lights: true, */
     });
+    console.log('uniforms', uniforms);
     this.mesh = new THREE.Mesh(geomtry, this.particlesMaterial);
     this.quadScene.add(this.mesh);
 
