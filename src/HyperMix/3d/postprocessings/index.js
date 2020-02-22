@@ -1,8 +1,8 @@
-import Fxaa from './fxaa';
+/* import Fxaa from './fxaa';
 import Bloom from './bloom';
 import Vignette from './vignette';
 import MotionBlur from './motionBlur';
-import Dof from './dof';
+import Dof from './dof'; */
 import ParticlesPass from './particlesPass';
 
 const effectComposer = require('./effectComposer');
@@ -18,20 +18,20 @@ class PostProcessing {
     const particlesPass = new ParticlesPass(fboHelper, particles);
     effectComposer.queue.push(particlesPass);
 
-    const fxaa = new Fxaa(fboHelper);
-    effectComposer.queue.push(fxaa);
+    // const fxaa = new Fxaa(fboHelper);
+    // effectComposer.queue.push(fxaa);
 
-    const dof = new Dof(fboHelper);
-    effectComposer.queue.push(dof);
+    // const dof = new Dof(fboHelper);
+    // effectComposer.queue.push(dof);
 
-    const motionBlur = new MotionBlur(fboHelper, 0);
-    effectComposer.queue.push(motionBlur);
+    // const motionBlur = new MotionBlur(fboHelper, 0);
+    // effectComposer.queue.push(motionBlur);
 
-    const bloom = new Bloom(fboHelper);
-    effectComposer.queue.push(bloom);
+    // const bloom = new Bloom(fboHelper);
+    // effectComposer.queue.push(bloom);
 
-    const vignette = new Vignette(fboHelper);
-    effectComposer.queue.push(vignette);
+    // const vignette = new Vignette(fboHelper);
+    // effectComposer.queue.push(vignette);
   }
 
   // eslint-disable-next-line class-methods-use-this

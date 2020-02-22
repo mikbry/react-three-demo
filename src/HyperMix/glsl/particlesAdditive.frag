@@ -23,9 +23,8 @@ void main() {
 
     isVisible *= step(EPS, z);
     toCenter.xy *= z;
-    // gl_FragColor = vec4(toCenter, z,  ceil(z / zLength) + vColor * 0.00001 * z ) * isVisible;
+    gl_FragColor = vec4(toCenter, z,  ceil(z / zLength) + vColor * 0.00001 * z ) * isVisible;
 
-    gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 }
 
 

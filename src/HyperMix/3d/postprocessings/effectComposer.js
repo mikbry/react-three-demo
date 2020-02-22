@@ -104,7 +104,7 @@ function renderScene(renderTarget, _scene, _camera) {
 }
 
 function render(material, toScreen) {
-  fboHelper.render(material, toScreen ? undef : toRenderTarget);
+  fboHelper.render(material, toScreen ? undefined : toRenderTarget);
   swapRenderTarget();
   return fromRenderTarget;
 }
@@ -121,7 +121,7 @@ function getRenderTarget(_bitShift, _isRGBA) {
   if (list.length) {
     renderTarget = list.pop();
     // merge(renderTarget, _renderTargetDefaultState);
-    renderTarget.push(..._renderTargetDefaultState);
+    renderTarget = { ..._renderTargetDefaultState, renderTarget };
   } else {
     renderTarget = fboHelper.createRenderTarget(width, height, isRGBA ? THREE.RGBAFormat : THREE.RGBFormat);
     renderTarget._listId = id;

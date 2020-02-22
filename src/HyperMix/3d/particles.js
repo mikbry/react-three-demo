@@ -62,7 +62,7 @@ class Particles {
       stencilBuffer: false,
       transparent: true,
     });
-    this.depthRenderTarget.material = material;
+    this.depthRenderMaterial = material;
     settings.distanceMap = this.depthRenderTarget;
   }
 
@@ -70,7 +70,7 @@ class Particles {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uTexturePosition: { type: 't', value: this.undef },
-        uDepth: { type: 't', value: this.depthRenderTarget.texture },
+        uDepth: { type: 't', value: this.depthRenderTarget },
         uResolution: { type: 'v2', value: this.resolution },
         uParticleSize: { type: 'f', value: 1 },
       },
@@ -96,7 +96,7 @@ class Particles {
       depthBuffer: false,
       stencilBuffer: false,
     });
-    this.additiveRenderTarget.material = material;
+    this.additiveRenderMaterial = material;
   }
 
   initBlurRenderTarget() {
@@ -149,7 +149,7 @@ class Particles {
     this.initAdditiveRenderTarget();
     this.initBlurRenderTarget();
 
-    this.particles = new THREE.Points(this.particleGeometry, this.additiveRenderTarget.material);
+    this.particles = new THREE.Points(this.particleGeometry, this.additiveRenderMaterial);
     this.particles.frustumCulled = false;
 
     const geomtry = new THREE.PlaneBufferGeometry(2, 2);
@@ -180,7 +180,6 @@ class Particles {
       fragmentShader: shaderParse(particlesfrag),
       /* lights: true, */
     });
-    console.log('uniforms', uniforms);
     this.mesh = new THREE.Mesh(geomtry, this.particlesMaterial);
     this.quadScene.add(this.mesh);
 
@@ -214,28 +213,30 @@ class Particles {
     const clearColor = this.renderer.getClearColor().getHex();
     const clearAlpha = this.renderer.getClearAlpha();
 
+    this.particlesMaterial.uniforms.uDepth.value = this.depthRenderTarget.texture;
+    this.particlesMaterial.uniforms.uAdditive.value = this.additiveRenderTarget.texture;
     this.renderer.setClearColor(0, 0);
     this.renderer.setRenderTarget(this.depthRenderTarget);
     this.renderer.clear(true, true, true);
-    this.particles.material = this.depthRenderTarget.material;
-    this.depthRenderTarget.material.uniforms.uTexturePrevPosition.value = this.simulator.prevPositionRenderTarget.texture;
-    this.depthRenderTarget.material.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
-    this.depthRenderTarget.material.uniforms.uParticleSize.value = settings.particleSize;
+    this.particles.material = this.depthRenderMaterial;
+    this.depthRenderMaterial.uniforms.uTexturePrevPosition.value = this.simulator.prevPositionRenderTarget.texture;
+    this.depthRenderMaterial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
+    this.depthRenderMaterial.uniforms.uParticleSize.value = settings.particleSize;
     this.renderer.render(this.particlesScene, this.camera);
-    this.renderer.setRenderTarget(null);
+    // this.renderer.setRenderTarget(null);
 
     /* if (!motionBlur.skipMatrixUpdate) {
-      this.depthRenderTarget.material.uniforms.uPrevModelViewMatrix.value.copy(this.particles.modelViewMatrix);
+      this.depthRenderMaterial.uniforms.uPrevModelViewMatrix.value.copy(this.particles.modelViewMatrix);
     } */
 
     this.renderer.setClearColor(0, 0);
     this.renderer.setRenderTarget(this.additiveRenderTarget);
     this.renderer.clear(true, true, true);
-    this.particles.material = this.additiveRenderTarget.material;
-    this.additiveRenderTarget.material.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
-    this.additiveRenderTarget.material.uniforms.uParticleSize.value = settings.particleSize;
+    this.particles.material = this.additiveRenderMaterial;
+    this.additiveRenderMaterial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
+    this.additiveRenderMaterial.uniforms.uParticleSize.value = settings.particleSize;
     this.renderer.render(this.particlesScene, this.camera);
-    this.renderer.setRenderTarget(null);
+    // this.renderer.setRenderTarget(null);
 
     const blurRadius = settings.blur;
 

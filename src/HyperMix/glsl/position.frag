@@ -62,5 +62,4 @@ void main() {
     life = life + floor(color * 8192.0);
     position.xyz = clamp(position.xyz, vec3(-uBoundBox.x * 0.49, -198.0, -uBoundBox.z * 0.49), vec3(uBoundBox.x * 0.49, uBoundBox.y -198.0, uBoundBox.z * 0.49));
     gl_FragColor = vec4(position, life);
-
 }

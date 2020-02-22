@@ -65,7 +65,7 @@ class Dof extends Effect {
     uniforms.u_dofDistance.value += (distance - prevDistance) * 0.1;
 
     uniforms.u_amount.value = settings.dof;
-    uniforms.u_distance.value = settings.distanceMap.texture;
+    uniforms.u_distance.value = settings.distanceMap;
     uniforms.u_delta.value.set(1, 0);
     renderTarget = super.render(dt, renderTarget);
     uniforms.u_delta.value.set(0, 1);

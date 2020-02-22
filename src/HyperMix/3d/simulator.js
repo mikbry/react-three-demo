@@ -12,10 +12,10 @@ const TEXTURE_HEIGHT = settings.simulatorTextureHeight;
 const AMOUNT = TEXTURE_WIDTH * TEXTURE_HEIGHT;
 
 class Simulator {
-  copyTexture(input, output) {
+  copyTexture(inputTexture, outputTarget) {
     this.mesh.material = this.copyShader;
-    this.copyShader.uniforms.texture.value = input.texture;
-    this.renderer.setRenderTarget(output);
+    this.copyShader.uniforms.texture.value = inputTexture;
+    this.renderer.setRenderTarget(outputTarget);
     this.renderer.render(this.scene, this.camera);
     // this.renderer.setRenderTarget(null);
   }
@@ -116,7 +116,7 @@ class Simulator {
     });
     this.positionRenderTarget2 = this.positionRenderTarget.clone();
     this.copyTexture(this.createPositionTexture(), this.positionRenderTarget);
-    this.copyTexture(this.positionRenderTarget, this.positionRenderTarget2);
+    this.copyTexture(this.positionRenderTarget.texture, this.positionRenderTarget2);
     // this.renderer.setRenderTarget(null);
   }
 
@@ -132,7 +132,7 @@ class Simulator {
     this.positionShader.uniforms.time.value += dt * 0.001;
     this.renderer.setRenderTarget(this.positionRenderTarget);
     this.renderer.render(this.scene, this.camera);
-    // this.renderer.setRenderTarget(null);
+    this.renderer.setRenderTarget(null);
   }
 
   update(_dt) {

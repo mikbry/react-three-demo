@@ -8,18 +8,20 @@ let undef;
 class Effect {
   constructor(name, fboHelper, cfg = {}) {
     this.name = name;
+    const { uniforms = {} } = cfg;
     this.uniforms = {
       u_texture: { type: 't', value: undef },
       u_resolution: { type: 'v2', value: effectComposer.resolution },
       u_aspect: { type: 'f', value: 1 },
-      ...(cfg.uniforms || {}),
+      ...uniforms,
     };
+    console.log('uniforms=', this.name, this.uniforms);
     this.fboHelper = fboHelper;
-    this.enabled = cfg.enabled || true;
+    this.enabled = cfg.enabled || cfg.enabled === undefined || false;
     this.vertexShader = cfg.vertexShader;
     this.fragmentShader = cfg.fragmentShader;
-    this.isRawMaterial = cfg.isRawMaterial || true;
-    this.addRawShaderPrefix = cfg.addRawShaderPrefix || true;
+    this.isRawMaterial = cfg.isRawMaterial || cfg.isRawMaterial === undefined || false;
+    this.addRawShaderPrefix = cfg.addRawShaderPrefix || cfg.addRawShaderPrefix === undefined || false;
 
     if (!this.vertexShader) {
       this.vertexShader = this.isRawMaterial ? fboHelper.vertexShader : shaderMaterialQuadVertexShader;
@@ -31,7 +33,7 @@ class Effect {
     }
     this.material = new THREE[this.isRawMaterial ? 'RawShaderMaterial' : 'ShaderMaterial']({
       uniforms: this.uniforms,
-      name: 'Effect',
+      name,
       vertexShader: this.vertexShader,
       fragmentShader: this.fragmentShader,
     });
