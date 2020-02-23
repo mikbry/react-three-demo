@@ -68,7 +68,7 @@ class Volume {
     }
 
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setDynamic(true));
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     // var rawShaderPrefix = 'precision ' + renderer.capabilities.precision + ' float;\n';
     const material = new THREE.ShaderMaterial({
@@ -103,9 +103,9 @@ class Volume {
     this.renderer.clear();
     this.renderer.setViewport(0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     this.mesh.material.uniforms.texturePosition.value = this.simulator.positionRenderTarget.texture;
-    // this.renderer.setRenderTarget(this.renderTarget);
+    this.renderer.setRenderTarget(this.renderTarget);
     this.renderer.render(this.scene, this.camera);
-    // this.renderer.setRenderTarget(null);
+    this.renderer.setRenderTarget(null);
     this.renderer.setClearColor(clearColor, clearAlpha);
     this.renderer.autoClearColor = autoClearColor;
     this.renderer.setViewport(0, 0, settings.width, settings.height);

@@ -1,8 +1,8 @@
-/* import Fxaa from './fxaa';
+import Fxaa from './fxaa';
 import Bloom from './bloom';
 import Vignette from './vignette';
 import MotionBlur from './motionBlur';
-import Dof from './dof'; */
+import Dof from './dof';
 import ParticlesPass from './particlesPass';
 
 const effectComposer = require('./effectComposer');
@@ -15,23 +15,23 @@ class PostProcessing {
     // for less power machine, pass true
     // fxaa.init(true);
 
-    const particlesPass = new ParticlesPass(fboHelper, particles);
-    effectComposer.queue.push(particlesPass);
+    this.particlesPass = new ParticlesPass(fboHelper, particles);
+    effectComposer.queue.push(this.particlesPass);
 
-    // const fxaa = new Fxaa(fboHelper);
-    // effectComposer.queue.push(fxaa);
+    this.fxaa = new Fxaa(fboHelper);
+    effectComposer.queue.push(this.fxaa);
 
-    // const dof = new Dof(fboHelper);
-    // effectComposer.queue.push(dof);
+    this.dof = new Dof(fboHelper);
+    effectComposer.queue.push(this.dof);
 
-    // const motionBlur = new MotionBlur(fboHelper, 0);
-    // effectComposer.queue.push(motionBlur);
+    this.motionBlur = new MotionBlur(fboHelper, 0);
+    effectComposer.queue.push(this.motionBlur);
 
-    // const bloom = new Bloom(fboHelper);
-    // effectComposer.queue.push(bloom);
+    this.bloom = new Bloom(fboHelper);
+    effectComposer.queue.push(this.bloom);
 
-    // const vignette = new Vignette(fboHelper);
-    // effectComposer.queue.push(vignette);
+    this.vignette = new Vignette(fboHelper);
+    effectComposer.queue.push(this.vignette);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -39,7 +39,12 @@ class PostProcessing {
     effectComposer.resize(width, height);
   }
 
-  render(dt) {
+  render(dt, newtTime, settings) {
+    this.fxaa.enabled = !!settings.fxaa;
+    this.dof.enabled = !!settings.dof;
+    this.motionBlur.enabled = !!settings.motionBlur;
+    this.vignette.enabled = !!settings.vignette;
+    this.bloom.enabled = !!settings.bloom;
     effectComposer.renderQueue(dt);
 
     if (this.visualizeTarget) {

@@ -73,7 +73,8 @@ function _filterQueue(effect) {
 function renderQueue(dt) {
   const renderableQueue = queue.filter(_filterQueue);
 
-  if (renderableQueue.length) {
+  const len = renderableQueue.length;
+  if (len) {
     exports.renderer.setRenderTarget(toRenderTarget);
     exports.renderer.render(exports.scene, exports.camera);
     exports.renderer.setRenderTarget(null);
@@ -81,9 +82,9 @@ function renderQueue(dt) {
     swapRenderTarget();
 
     let effect;
-    for (let i = 0, len = renderableQueue.length; i < len; i += 1) {
+    for (let i = 0; i < len; i += 1) {
       effect = renderableQueue[i];
-      // console.log('fx', effect.name);
+      // console.log('fx', effect.name, i === len - 1);
       effect.render(dt, fromRenderTarget, i === len - 1);
     }
   } else {

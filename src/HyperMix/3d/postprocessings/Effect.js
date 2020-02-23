@@ -15,7 +15,6 @@ class Effect {
       u_aspect: { type: 'f', value: 1 },
       ...uniforms,
     };
-    console.log('uniforms=', this.name, this.uniforms);
     this.fboHelper = fboHelper;
     this.enabled = cfg.enabled || cfg.enabled === undefined || false;
     this.vertexShader = cfg.vertexShader;
@@ -28,8 +27,8 @@ class Effect {
     }
 
     if (this.addRawShaderPrefix && this.isRawMaterial) {
-      this.vertexShader = fboHelper.rawShaderPrefix + this.vertexShader;
-      this.fragmentShader = fboHelper.rawShaderPrefix + this.fragmentShader;
+      this.vertexShader = fboHelper.rawShaderPrefix + (this.vertexShader || '');
+      this.fragmentShader = fboHelper.rawShaderPrefix + (this.fragmentShader || '');
     }
     this.material = new THREE[this.isRawMaterial ? 'RawShaderMaterial' : 'ShaderMaterial']({
       uniforms: this.uniforms,

@@ -35,7 +35,7 @@ settings.volumeSliceRow = 16;
 settings.volumeScale = 7;
 
 settings.speed = 0.45;
-settings.dieSpeed = 0.0035;
+settings.dieSpeed = 0.000035;
 settings.radius = 0.3; // amountInfo[2];
 settings.blur = 0;
 settings.curlSize = 0.00055;

@@ -10,14 +10,12 @@ import motionBlurSamplingfrag from './motionBlurSampling.frag';
 
 const effectComposer = require('../effectComposer');
 
-/* let undef;
-let fboHelper;
-
-const exports = (module.exports = new Effect());
-const _super = Effect.prototype; */
-
 class MotionBlur extends Effect {
   constructor(fboHelper, sampleCount) {
+    const gl = effectComposer.renderer.getContext();
+    if (!gl.getExtension('OES_texture_float') || !gl.getExtension('OES_texture_float_linear')) {
+      throw new Error('no float linear support');
+    }
     const linesRenderTarget = fboHelper.createRenderTarget(1, 1, THREE.RGBAFormat, THREE.FloatType);
     super('motionBlur', fboHelper, {
       uniforms: {
@@ -27,10 +25,6 @@ class MotionBlur extends Effect {
       },
       fragmentShader: motionBlurfrag,
     });
-    const gl = effectComposer.renderer.getContext();
-    if (!gl.getExtension('OES_texture_float') || !gl.getExtension('OES_texture_float_linear')) {
-      throw new Error('no float linear support');
-    }
     this.linesRenderTarget = linesRenderTarget;
     this.sampleCount = sampleCount;
     this.linesCamera = new THREE.Camera();
@@ -43,7 +37,7 @@ class MotionBlur extends Effect {
     this.linesMaterial = new THREE.RawShaderMaterial({
       uniforms: {
         u_texture: { type: 't', value: undefined },
-        u_motionTexture: { type: 't', value: settings.distanceMap },
+        u_motionTexture: { type: 't', value: settings.distanceMap.texture },
         u_resolution: { type: 'v2', value: effectComposer.resolution },
         u_maxDistance: { type: 'f', value: 1 },
         u_jitter: { type: 'f', value: 0.3 },
@@ -75,7 +69,7 @@ class MotionBlur extends Effect {
     this.samplingMaterial = new THREE.RawShaderMaterial({
       uniforms: {
         u_texture: { type: 't', value: undefined },
-        u_motionTexture: { type: 't', value: settings.distanceMap },
+        u_motionTexture: { type: 't', value: settings.distanceMap.texture },
         u_resolution: { type: 'v2', value: effectComposer.resolution },
         u_maxDistance: { type: 'f', value: 1 },
         u_fadeStrength: { type: 'f', value: 1 },
@@ -112,26 +106,6 @@ class MotionBlur extends Effect {
     // this.motionRenderTargetScale = 1;
     this.linesRenderTargetScale = 1 / 3;
   }
-
-  /*
-// var _motionRenderTarget;
-let this.linesRenderTarget;
-
-let this.lines;
-let this.linesCamera;
-let this.linesScene;
-let this.linesPositions;
-let this.linesPositionAttribute;
-let this.linesGeometry;
-let this.linesMaterial;
-
-let this.samplingMaterial;
-
-let _prevUseDithering;
-let _prevUseSampling;
-
-let _width;
-let _height; */
 
   // dithering
   // eslint-disable-next-line class-methods-use-this
@@ -227,14 +201,12 @@ let _height; */
     }
 
     this.fboHelper.setColorState(state);
-
     if (useSampling) {
       this.samplingMaterial.uniforms.u_maxDistance.value = this.maxDistance;
       this.samplingMaterial.uniforms.u_fadeStrength.value = this.fadeStrength;
       this.samplingMaterial.uniforms.u_motionMultiplier.value = this.motionMultiplier; // * fpsRatio;
       this.samplingMaterial.uniforms.u_leaning.value = Math.max(0.001, Math.min(0.999, this.leaning));
       this.samplingMaterial.uniforms.u_texture.value = renderTarget.texture;
-
       effectComposer.render(this.samplingMaterial, toScreen);
     } else {
       this.uniforms.u_lineAlphaMultiplier.value = 1 + this.useDithering;
@@ -242,9 +214,5 @@ let _height; */
     }
   }
 }
-
-/* this.init = init;
-this.resize = resize;
-this.render = render; */
 
 export default MotionBlur;

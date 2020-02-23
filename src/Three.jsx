@@ -14,12 +14,13 @@ const Three = () => {
     let frameId;
 
     const renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      // antialias: true,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
     });
     const scene = new Scene(renderer);
     scene.init(width, height);
+    scene.fog = new THREE.FogExp2(new THREE.Color(scene.background.color), 0.001);
     renderer.setClearColor(scene.background.color);
     renderer.setSize(width, height);
 
@@ -38,10 +39,10 @@ const Three = () => {
       __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: renderer }));
     } */
 
-    const renderScene = () => {
+    /* const renderScene = () => {
       // console.log('camera=', scene.camera.rotation);
       renderer.render(scene.scene, scene.camera);
-    };
+    }; */
 
     const handleResize = () => {
       width = mount.current.clientWidth;
@@ -50,14 +51,15 @@ const Three = () => {
       // camera.aspect = width / height;
       // camera.updateProjectionMatrix();
       scene.resize(width, height);
-      renderScene();
+      // renderScene();
+      scene.render();
     };
 
     const animate = () => {
       // cube.rotation.x += 0.01;
       // cube.rotation.y += 0.01;
+      // renderScene();
       scene.render();
-      renderScene();
       frameId = window.requestAnimationFrame(animate);
     };
 

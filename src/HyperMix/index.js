@@ -14,9 +14,13 @@ export default class {
     settings.capablePrecision = renderer.capabilities.precision;
   }
 
-  init(camera, scene, width, height) {
+  init(camera, scene, width, height, controls) {
+    this.controls = controls;
     this.bgColor = new THREE.Color(settings.bgColor);
     this.particles = new Particles();
+    this.simulator = new Simulator();
+    this.volume = new Volume();
+    this.postprocessing = new Postprocessing();
     this.fboHelper = new FboHelper();
     this.fboHelper.init(this.renderer);
     const fn = this.renderer.renderBufferDirect;
@@ -27,13 +31,10 @@ export default class {
     };
     lights.init(this.renderer);
     scene.add(lights.mesh);
-    this.simulator = new Simulator();
-    this.volume = new Volume();
+    this.particles.init(this.renderer, camera, scene, this.simulator);
+    this.postprocessing.init(this.renderer, scene, camera, this.fboHelper, this.particles);
     this.volume.init(this.renderer, this.simulator);
     this.simulator.init(this.renderer, this.fboHelper, this.volume);
-    this.particles.init(this.renderer, camera, scene, this.simulator);
-    this.postprocessing = new Postprocessing();
-    this.postprocessing.init(this.renderer, scene, camera, this.fboHelper, this.particles);
     this.resize(width, height);
   }
 
@@ -44,14 +45,27 @@ export default class {
     this.postprocessing.resize(width, height);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  lerp(min, max, val) {
+    // eslint-disable-next-line no-nested-ternary
+    return val <= 0 ? min : val >= 1 ? max : min + (max - min) * val;
+  }
+
   render(dt, newTime) {
     settings.deltaRatio = dt / 16.666667;
     this.bgColor.setStyle(settings.bgColor);
     const tmpColor = new THREE.Color(0x333333);
     tmpColor.lerp(this.bgColor, 1);
-    this.particles.mesh.material.uniforms.uFogColor.value.copy(tmpColor);
+    this.particles.setFogColor(tmpColor);
     let initAnimation = this.simulator.initAnimation || 0;
     initAnimation = Math.min(initAnimation + dt * 0.00025, 1);
+    if (this.controls) {
+      if (initAnimation < 1) {
+        this.controls.maxDistance = this.lerp(1800, 1400, initAnimation);
+      } else {
+        this.controls.maxDistance = 2400;
+      }
+    }
     this.simulator.initAnimation = initAnimation;
     this.volume.boundBox.copy(this.volume.resolution).multiplyScalar(settings.volumeScale);
 
@@ -60,6 +74,6 @@ export default class {
     this.simulator.update(dt);
     this.particles.preRender(dt);
 
-    this.postprocessing.render(dt, newTime);
+    this.postprocessing.render(dt, newTime, settings);
   }
 }

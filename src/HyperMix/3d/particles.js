@@ -32,11 +32,11 @@ class Particles {
       position[i3 + 0] = ((i % TEXTURE_WIDTH) + 0.5) / TEXTURE_WIDTH;
       position[i3 + 1] = (~~(i / TEXTURE_WIDTH) + 0.5) / TEXTURE_HEIGHT;
       // eslint-disable-next-line no-restricted-properties
-      position[i3 + 2] = (20000 + Math.pow(Math.random(), 5) * 24000) / baseSize / 10; // size
+      position[i3 + 2] = (20000 + Math.pow(Math.random(), 5) * 24000) / baseSize; // size
       // console.log('position', i, position[i3], position[i3 + 1], position[i3 + 2], AMOUNT);
     }
     this.particleGeometry = new THREE.BufferGeometry();
-    this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3).setDynamic(true));
+    this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
   }
 
   initDepthRenderTarget() {
@@ -133,6 +133,49 @@ class Particles {
     });
   }
 
+  initMesh() {
+    if (this.mesh) {
+      return;
+    }
+    const geomtry = new THREE.PlaneBufferGeometry(2, 2);
+    const uniforms = THREE.UniformsUtils.merge([
+      THREE.UniformsLib.lights,
+      {
+        uDepth: { type: 't', value: this.depthRenderTarget.texture },
+        uAdditive: { type: 't', value: this.additiveRenderTarget.texture },
+        uResolution: { type: 'v2', value: this.resolution },
+        uCameraInverse: { type: 'm4', value: this.camera.matrixWorld },
+        uCameraRotationInverse: { type: 'm4', value: new THREE.Matrix4() },
+        uProjectMatrix: { type: 'm4', value: this.camera.projectionMatrix },
+        uProjectMatrixInverse: { type: 'm4', value: new THREE.Matrix4() },
+        uFogColor: { type: 'c', value: new THREE.Color() },
+        uColor1: { type: 'c', value: new THREE.Color(settings.color1) },
+        uColor2: { type: 'c', value: new THREE.Color(settings.color2) },
+        uLightPosition: { type: 'v3', value: lights.mesh.position },
+      },
+    ]);
+    uniforms.uDepth = { type: 't', value: this.depthRenderTarget.texture };
+    uniforms.uAdditive = { type: 't', value: this.additiveRenderTarget.texture };
+    this.particlesMaterial = new THREE.ShaderMaterial({
+      uniforms,
+      transparent: true,
+      depthTest: true,
+      depthWrite: true,
+      vertexShader: shaderParse(particlesvert),
+      fragmentShader: shaderParse(particlesfrag),
+      /* lights: true, */
+    });
+    this.particlesMaterial.onBeforeCompile = mtl => {
+      const { uniforms: u } = mtl;
+      u.uDepth.value = this.depthRenderTarget.texture;
+      u.uAdditive.value = this.additiveRenderTarget.texture;
+      u.spotShadowMap.value = [lights.spot.shadow.map.texture];
+      u.spotShadowMatrix.value = [lights.spot.shadow.matrix];
+    };
+    this.mesh = new THREE.Mesh(geomtry, this.particlesMaterial);
+    this.quadScene.add(this.mesh);
+  }
+
   init(renderer, camera, scene, simulator) {
     this.simulator = simulator;
     this.quadCamera = new THREE.Camera();
@@ -152,36 +195,7 @@ class Particles {
     this.particles = new THREE.Points(this.particleGeometry, this.additiveRenderMaterial);
     this.particles.frustumCulled = false;
 
-    const geomtry = new THREE.PlaneBufferGeometry(2, 2);
-    const uniforms = THREE.UniformsUtils.merge([
-      THREE.UniformsLib.ambient,
-      THREE.UniformsLib.lights,
-      THREE.UniformsLib.shadowmap,
-    ]);
-    uniforms.spotShadowMap = { type: 'tv', value: undefined };
-    uniforms.spotShadowMatrix = { type: 'm4v', value: undefined };
-
-    uniforms.uDepth = { type: 't', value: this.depthRenderTarget.texture };
-    uniforms.uAdditive = { type: 't', value: this.additiveRenderTarget.texture };
-    uniforms.uResolution = { type: 'v2', value: this.resolution };
-    uniforms.uCameraInverse = { type: 'm4', value: this.camera.matrixWorld };
-    uniforms.uCameraRotationInverse = { type: 'm4', value: new THREE.Matrix4() };
-    uniforms.uProjectMatrix = { type: 'm4', value: this.camera.projectionMatrix };
-    uniforms.uProjectMatrixInverse = { type: 'm4', value: new THREE.Matrix4() };
-    uniforms.uFogColor = { type: 'c', value: new THREE.Color() };
-    uniforms.uColor1 = { type: 'c', value: new THREE.Color(settings.color1) };
-    uniforms.uColor2 = { type: 'c', value: new THREE.Color(settings.color2) };
-    uniforms.uLightPosition = { type: 'v3', value: lights.mesh.position };
-    this.particlesMaterial = new THREE.ShaderMaterial({
-      uniforms,
-      transparent: true,
-      depthWrite: false,
-      vertexShader: shaderParse(particlesvert),
-      fragmentShader: shaderParse(particlesfrag),
-      /* lights: true, */
-    });
-    this.mesh = new THREE.Mesh(geomtry, this.particlesMaterial);
-    this.quadScene.add(this.mesh);
+    // this.initMesh();
 
     this.shadowMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -196,6 +210,7 @@ class Particles {
     });
     this.particles.castShadow = true;
     this.particles.customDepthMaterial = this.shadowMaterial;
+    scene.add(this.particles);
   }
 
   resize(width, height) {
@@ -207,7 +222,13 @@ class Particles {
     this.blurRenderTarget.setSize(width, height);
   }
 
+  setFogColor(color) {
+    this.fogColor = color;
+  }
+
   preRender() {
+    this.initMesh();
+    this.mesh.material.uniforms.uFogColor.value.copy(this.fogColor);
     this.particlesScene.add(this.particles);
     const { autoClearColor } = this.renderer;
     const clearColor = this.renderer.getClearColor().getHex();
@@ -223,11 +244,11 @@ class Particles {
     this.depthRenderMaterial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
     this.depthRenderMaterial.uniforms.uParticleSize.value = settings.particleSize;
     this.renderer.render(this.particlesScene, this.camera);
-    // this.renderer.setRenderTarget(null);
+    this.renderer.setRenderTarget(null);
 
-    /* if (!motionBlur.skipMatrixUpdate) {
-      this.depthRenderMaterial.uniforms.uPrevModelViewMatrix.value.copy(this.particles.modelViewMatrix);
-    } */
+    // if (!motionBlur.skipMatrixUpdate) {
+    this.depthRenderMaterial.uniforms.uPrevModelViewMatrix.value.copy(this.particles.modelViewMatrix);
+    // }
 
     this.renderer.setClearColor(0, 0);
     this.renderer.setRenderTarget(this.additiveRenderTarget);
@@ -236,7 +257,7 @@ class Particles {
     this.additiveRenderMaterial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
     this.additiveRenderMaterial.uniforms.uParticleSize.value = settings.particleSize;
     this.renderer.render(this.particlesScene, this.camera);
-    // this.renderer.setRenderTarget(null);
+    this.renderer.setRenderTarget(null);
 
     const blurRadius = settings.blur;
 
@@ -263,8 +284,8 @@ class Particles {
     // this.particles.material = settings.ignoredMaterial;
     this.shadowMaterial.uniforms.uTexturePosition.value = this.simulator.positionRenderTarget.texture;
     this.shadowMaterial.uniforms.uParticleSize.value = settings.particleSize;
-    this.scene.add(this.particles);
-    this.renderer.setRenderTarget(null);
+    // this.scene.add(this.particles);
+    // this.renderer.setRenderTarget(null);
   }
 
   update(renderTarget) {

@@ -1,21 +1,22 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
+/* import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass'; */
 import { Reflector } from 'three/examples/jsm/objects/Reflector';
 
 import Particles from './Particles';
 import HyperMix from './HyperMix';
 
-const WALLWIDTH = 260;
-const WALLHEIGHT = 90;
-const WALLDEPTH = 5;
+const GLOBALSCALE = 10;
+const WALLWIDTH = 300 * GLOBALSCALE;
+const WALLHEIGHT = 110 * GLOBALSCALE;
+const WALLDEPTH = 5 * GLOBALSCALE;
 
-const STONEWIDTH = 10;
-const STONEHEIGHT = 15;
+const STONEWIDTH = 10 * GLOBALSCALE;
+const STONEHEIGHT = 15 * GLOBALSCALE;
 
-const PANELSIZE = 70;
-const PANELDEPTH = 8;
+const PANELSIZE = 90 * GLOBALSCALE;
+const PANELDEPTH = 8 * GLOBALSCALE;
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -41,17 +42,18 @@ export default class {
     const normalMap = textureLoader.load('/images/flakes.png');
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 5000);
-    camera.position.set(140, 20, -40 + WALLWIDTH / 2);
-    /* const camera = new THREE.PerspectiveCamera(45, 1, 10, 5000);
+    /* const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 5000);
+    camera.position.set(140, 20, -40 + WALLWIDTH / 2); */
+    const camera = new THREE.PerspectiveCamera(45, width / height, 10, 5000);
     camera.position
-      .set(1000, 100, 700)
+      .set(1200, 100, 900)
       .normalize()
-      .multiplyScalar(3000); */
+      .multiplyScalar(1600);
     const controls = new OrbitControls(camera, this.renderer.domElement);
-    controls.target.set(-5, 20, 10);
+    // controls.target.set(-5, 20, 10);
+    controls.target.y = 100;
     controls.update();
-
+    this.controls = controls;
     const bulbGeometry = new THREE.SphereBufferGeometry(2, 16, 8);
     const bulbLight = new THREE.PointLight(0xffffff, 0.6, -10, 2);
     const bulbMat = new THREE.MeshStandardMaterial({
@@ -60,7 +62,7 @@ export default class {
       color: 0x201010,
     });
     bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMat));
-    bulbLight.position.set(0, 80, 10);
+    bulbLight.position.set(0, 80 * GLOBALSCALE, 10 * GLOBALSCALE);
     bulbLight.castShadow = true;
     scene.add(bulbLight);
 
@@ -71,29 +73,29 @@ export default class {
     // hemiLight.castShadow = true;
     // scene.add(hemiLight);
     const spotLight = new THREE.SpotLight(0xffffff);
-    spotLight.position.set(25, 100, 125);
+    spotLight.position.set(25 * GLOBALSCALE, 100 * GLOBALSCALE, 125 * GLOBALSCALE);
     // spotLight.castShadow = true;
     // scene.add(spotLight);
 
-    const mainLight = new THREE.PointLight(0x002020, 5, 100);
-    mainLight.position.y = 60;
+    const mainLight = new THREE.PointLight(0x002020, 5 * GLOBALSCALE, 100);
+    mainLight.position.y = 60 * GLOBALSCALE;
     // mainLight.castShadow = true;
     scene.add(mainLight);
 
-    const greenLight = new THREE.PointLight(0x30ff88, 2, 100);
-    greenLight.position.set(50, 50, 0);
+    const greenLight = new THREE.PointLight(0x30ff88, 2 * GLOBALSCALE, 100);
+    greenLight.position.set(50 * GLOBALSCALE, 50 * GLOBALSCALE, 0);
     // greenLight.castShadow = true;
     scene.add(greenLight);
     this.greenLight = greenLight;
 
-    const redLight = new THREE.PointLight(0xff2020, 5, 100);
-    redLight.position.set(50, 50, 10);
+    const redLight = new THREE.PointLight(0xff2020, 5 * GLOBALSCALE, 100);
+    redLight.position.set(50 * GLOBALSCALE, 50 * GLOBALSCALE, 10 * GLOBALSCALE);
     // redLight.castShadow = true;
     scene.add(redLight);
     this.redLight = redLight;
 
-    const blueLight = new THREE.PointLight(0x7f7fff, 2, 150);
-    blueLight.position.set(0, 50, 50);
+    const blueLight = new THREE.PointLight(0x7f7fff, 2 * GLOBALSCALE, 150);
+    blueLight.position.set(0, 50 * GLOBALSCALE, 50 * GLOBALSCALE);
     // blueLight.castShadow = true;
     scene.add(blueLight);
     this.blueLight = blueLight;
@@ -168,22 +170,22 @@ export default class {
       specularMap: roughness,
     });
     const panel = new THREE.Mesh(panelGeom, panelMat);
-    panel.position.x = -WALLWIDTH / 2 + 24;
+    panel.position.x = -WALLWIDTH / 2 + 24 * GLOBALSCALE;
     panel.position.y = PANELSIZE / 2;
-    panel.position.z = 40;
+    panel.position.z = 40 * GLOBALSCALE;
     panel.receiveShadow = true;
     scene.add(panel);
 
-    const screenGeom = new THREE.PlaneBufferGeometry(PANELSIZE - 10, PANELSIZE - 10);
+    const screenGeom = new THREE.PlaneBufferGeometry(PANELSIZE - 10 * GLOBALSCALE, PANELSIZE - 10 * GLOBALSCALE);
     screenGeom.rotateY(Math.PI / 2);
     const screenMat = new THREE.MeshPhongMaterial({
       color: 0xffffff,
       specular: 0xffffff,
     });
     const screen = new THREE.Mesh(screenGeom, screenMat);
-    screen.position.x = -WALLWIDTH / 2 + 30;
+    screen.position.x = -WALLWIDTH / 2 + 30 * GLOBALSCALE;
     screen.position.y = PANELSIZE / 2;
-    screen.position.z = 40;
+    screen.position.z = 40 * GLOBALSCALE;
     screen.receiveShadow = true;
     scene.add(screen);
 
@@ -196,7 +198,7 @@ export default class {
       normalScale: new THREE.Vector2(0.5, 0.5),
     });
     const cube = new THREE.Mesh(geometry, mtl);
-    cube.position.y = STONEHEIGHT / 2 + 1;
+    cube.position.y = STONEHEIGHT / 2 + 1 * GLOBALSCALE;
     cube.castShadow = true;
     cube.receiveShadow = true;
     scene.add(cube);
@@ -205,7 +207,7 @@ export default class {
     scene.add(pCloud);
 
     this.hyperMix = new HyperMix(this.renderer);
-    this.hyperMix.init(camera, scene, width, height);
+    this.hyperMix.init(camera, scene, width, height, controls);
 
     this.scene = scene;
     this.camera = camera;
@@ -215,28 +217,29 @@ export default class {
     this.bulbLight = bulbLight;
     this.cube = cube;
 
-    const composer = new EffectComposer(this.renderer);
+    /* const composer = new EffectComposer(this.renderer);
     const ssaoPass = new SSAOPass(scene, camera, width, height);
     ssaoPass.kernelRadius = 16;
-    composer.addPass(ssaoPass);
+    composer.addPass(ssaoPass); */
+    this.time = Date.now();
   }
 
   render() {
     const now = Date.now();
-    this.hyperMix.render(now - this.time);
+    this.hyperMix.render(now - this.time, now);
     const pCloud = this.particles.render();
     pCloud.rotation.y -= 0.01;
     this.cube.rotation.y -= 0.01;
     let time = now * 0.005;
-    this.bulbLight.position.y = Math.cos(time) * 0.8 + 80.25;
-    this.bulbLight.position.z = Math.cos(time) * 0.4 + 80.25;
+    this.bulbLight.position.y = Math.cos(time) * 0.8 * GLOBALSCALE + 80.25 * GLOBALSCALE;
+    this.bulbLight.position.z = Math.cos(time) * 0.4 * GLOBALSCALE + 80.25 * GLOBALSCALE;
     time *= 0.2;
-    this.redLight.position.x = 100 * Math.sin(time);
-    this.redLight.position.z = 100 * Math.cos(time);
-    this.greenLight.position.x = -100 * Math.sin(time);
-    this.greenLight.position.z = 90 * Math.cos(time);
-    this.blueLight.position.x = 80 * Math.sin(time);
-    this.blueLight.position.z = -100 * Math.cos(time);
+    this.redLight.position.x = 100 * Math.sin(time) * GLOBALSCALE;
+    this.redLight.position.z = 100 * Math.cos(time) * GLOBALSCALE;
+    this.greenLight.position.x = -100 * Math.sin(time) * GLOBALSCALE;
+    this.greenLight.position.z = 90 * Math.cos(time) * GLOBALSCALE;
+    this.blueLight.position.x = 80 * Math.sin(time) * GLOBALSCALE;
+    this.blueLight.position.z = -100 * Math.cos(time) * GLOBALSCALE;
     this.time = now;
   }
 

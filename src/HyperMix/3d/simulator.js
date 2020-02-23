@@ -17,7 +17,7 @@ class Simulator {
     this.copyShader.uniforms.texture.value = inputTexture;
     this.renderer.setRenderTarget(outputTarget);
     this.renderer.render(this.scene, this.camera);
-    // this.renderer.setRenderTarget(null);
+    this.renderer.setRenderTarget(null);
   }
 
   createPositionTexture() {
@@ -35,7 +35,7 @@ class Simulator {
       positions[i4 + 0] = r * Math.cos(theta) * Math.cos(phi);
       positions[i4 + 1] = r * Math.sin(phi);
       positions[i4 + 2] = r * Math.sin(theta) * Math.cos(phi);
-      positions[i4 + 3] = 0.002 + Math.random() * 0.998;
+      positions[i4 + 3] = 0.8 + Math.random() * 0.998;
     }
     const texture = new THREE.DataTexture(positions, TEXTURE_WIDTH, TEXTURE_HEIGHT, THREE.RGBAFormat, THREE.FloatType);
     texture.minFilter = THREE.NearestFilter;
@@ -117,7 +117,7 @@ class Simulator {
     this.positionRenderTarget2 = this.positionRenderTarget.clone();
     this.copyTexture(this.createPositionTexture(), this.positionRenderTarget);
     this.copyTexture(this.positionRenderTarget.texture, this.positionRenderTarget2);
-    // this.renderer.setRenderTarget(null);
+    this.renderer.setRenderTarget(null);
   }
 
   updatePosition(dt) {
