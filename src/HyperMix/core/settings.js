@@ -21,24 +21,24 @@ settings.useStats = false;
 // settings.amountList = keys(amountMap);
 // query.amount = amountMap[query.amount] ? query.amount : '16k';
 // const amountInfo = amountMap[query.amount];
-settings.simulatorTextureWidth = 128; // amountInfo[0];
-settings.simulatorTextureHeight = 128; // amountInfo[1];
+settings.simulatorTextureWidth = 1024; // amountInfo[0];
+settings.simulatorTextureHeight = 512; // amountInfo[1];
 
 settings.emitterDistanceRatio = 0.65;
 settings.emitterSpeed = 20.0;
 
-settings.volumeWidth = 256;
+settings.volumeWidth = 128;
 settings.volumeHeight = 128;
 settings.volumeDepth = 128;
 settings.volumeSliceColumn = 8;
 settings.volumeSliceRow = 16;
-settings.volumeScale = 7;
+settings.volumeScale = 3;
 
-settings.speed = 0.45;
-settings.dieSpeed = 0.000035;
-settings.radius = 0.3; // amountInfo[2];
+settings.speed = 0.25;
+settings.dieSpeed = 0.005;
+settings.radius = 0.75; // amountInfo[2];
 settings.blur = 0;
-settings.curlSize = 0.00055;
+settings.curlSize = 0.00015;
 
 settings.particleSize = 32;
 settings.bgColor = '#1c2020';
@@ -59,9 +59,9 @@ settings.dofMouse = false;
 settings.motionBlurQualityList = keys(motionBlurQualityMap);
 query.motionBlurQuality = motionBlurQualityMap[query.motionBlurQuality] ? query.motionBlurQuality : 'medium'; */
 settings.fxaa = true;
-settings.motionBlur = true;
+settings.motionBlur = false;
 settings.motionBlurPause = false;
-settings.bloom = false;
+settings.bloom = true;
 settings.vignette = false;
 settings.vignetteMultiplier = 0.8;
 

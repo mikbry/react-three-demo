@@ -39,11 +39,11 @@ void main() {
     if(life < 0.001) {
         positionInfo = texture2D( textureDefaultPosition, uv );
         position = positionInfo.xyz * (1.0 + sin(time * 15.0) * 0.2) * radius;
-        position.x += side * uBoundBox.x * 0.5 * uEmitterDistanceRatio * initForce;
+        position.y += side * uBoundBox.x * 0.5 * uEmitterDistanceRatio * initForce;
         color = side * 0.5 + 0.5;
         life = 0.5 + fract(positionInfo.w * 21.4131 + time) * 0.499;
     } else {
-        position.x -= speed * side * uEmitterSpeed * smoothstep(-1.0, -0.5, -life) * initForce * deltaRatio;
+        position.y -= speed * side * uEmitterSpeed * smoothstep(-1.0, -0.5, -life) * initForce * deltaRatio;
         position += curl(position * curlSize, time * 2.3, 1.2 + (1.0 - life) * 0.35) * speed * (1.75 - life) * deltaRatio;
 
         vec3 color3 = getColor3(positionInfo.xyz);

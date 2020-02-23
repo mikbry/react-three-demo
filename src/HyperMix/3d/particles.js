@@ -210,7 +210,7 @@ class Particles {
     });
     this.particles.castShadow = true;
     this.particles.customDepthMaterial = this.shadowMaterial;
-    scene.add(this.particles);
+    // scene.add(this.particles);
   }
 
   resize(width, height) {
@@ -247,7 +247,7 @@ class Particles {
     this.renderer.setRenderTarget(null);
 
     // if (!motionBlur.skipMatrixUpdate) {
-    this.depthRenderMaterial.uniforms.uPrevModelViewMatrix.value.copy(this.particles.modelViewMatrix);
+    // this.depthRenderMaterial.uniforms.uPrevModelViewMatrix.value.copy(this.particles.modelViewMatrix);
     // }
 
     this.renderer.setClearColor(0, 0);

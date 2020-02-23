@@ -18,6 +18,8 @@ const STONEHEIGHT = 15 * GLOBALSCALE;
 const PANELSIZE = 90 * GLOBALSCALE;
 const PANELDEPTH = 8 * GLOBALSCALE;
 
+const GLOBALY = -(STONEHEIGHT + 12 * GLOBALSCALE);
+
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 
@@ -64,7 +66,7 @@ export default class {
     bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMat));
     bulbLight.position.set(0, 80 * GLOBALSCALE, 10 * GLOBALSCALE);
     bulbLight.castShadow = true;
-    scene.add(bulbLight);
+    // scene.add(bulbLight);
 
     // const light = new THREE.DirectionalLight(0x404040, 0.4);
     // light.castShadow = true;
@@ -80,24 +82,24 @@ export default class {
     const mainLight = new THREE.PointLight(0x002020, 5 * GLOBALSCALE, 100);
     mainLight.position.y = 60 * GLOBALSCALE;
     // mainLight.castShadow = true;
-    scene.add(mainLight);
+    // scene.add(mainLight);
 
     const greenLight = new THREE.PointLight(0x30ff88, 2 * GLOBALSCALE, 100);
     greenLight.position.set(50 * GLOBALSCALE, 50 * GLOBALSCALE, 0);
     // greenLight.castShadow = true;
-    scene.add(greenLight);
+    // scene.add(greenLight);
     this.greenLight = greenLight;
 
     const redLight = new THREE.PointLight(0xff2020, 5 * GLOBALSCALE, 100);
     redLight.position.set(50 * GLOBALSCALE, 50 * GLOBALSCALE, 10 * GLOBALSCALE);
     // redLight.castShadow = true;
-    scene.add(redLight);
+    // scene.add(redLight);
     this.redLight = redLight;
 
     const blueLight = new THREE.PointLight(0x7f7fff, 2 * GLOBALSCALE, 150);
     blueLight.position.set(0, 50 * GLOBALSCALE, 50 * GLOBALSCALE);
     // blueLight.castShadow = true;
-    scene.add(blueLight);
+    // scene.add(blueLight);
     this.blueLight = blueLight;
 
     const floorGeometry = new THREE.PlaneBufferGeometry(WALLWIDTH, WALLWIDTH, 100, 100);
@@ -111,6 +113,7 @@ export default class {
       transparent: true,
     });
     this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    this.floor.position.y = GLOBALY;
     this.floor.receiveShadow = true;
     scene.add(this.floor);
     const geom = new THREE.PlaneBufferGeometry(WALLWIDTH, WALLWIDTH);
@@ -121,15 +124,15 @@ export default class {
       color: 0x062222,
       recursion: 1,
     });
-    groundMirror.position.y = 0.001;
     groundMirror.rotateX(-Math.PI / 2);
+    groundMirror.position.y = 0.001 + GLOBALY;
     // groundMirror.receiveShadow = true;
     scene.add(groundMirror);
 
     const ceilingGeometry = new THREE.PlaneBufferGeometry(WALLWIDTH, WALLWIDTH, 100, 100);
     ceilingGeometry.rotateX(Math.PI / 2);
     this.ceiling = new THREE.Mesh(ceilingGeometry, floorMaterial);
-    this.ceiling.position.y = WALLHEIGHT;
+    this.ceiling.position.y = WALLHEIGHT + GLOBALY;
     this.ceiling.receiveShadow = true;
     scene.add(this.ceiling);
 
@@ -141,7 +144,7 @@ export default class {
       specularMap: roughness,
     });
     const wallFront = new THREE.Mesh(geometry, material);
-    wallFront.position.y = WALLHEIGHT / 2;
+    wallFront.position.y = WALLHEIGHT / 2 + GLOBALY;
     wallFront.position.z = -WALLWIDTH / 2;
     wallFront.receiveShadow = true;
     scene.add(wallFront);
@@ -150,7 +153,7 @@ export default class {
     geometry.rotateY(-Math.PI / 2);
     const wallLeft = new THREE.Mesh(geometry, material);
     wallLeft.position.x = -WALLWIDTH / 2;
-    wallLeft.position.y = WALLHEIGHT / 2;
+    wallLeft.position.y = WALLHEIGHT / 2 + GLOBALY;
     wallLeft.receiveShadow = true;
     scene.add(wallLeft);
 
@@ -158,7 +161,7 @@ export default class {
     geometry.rotateY(-Math.PI / 2);
     const wallRight = new THREE.Mesh(geometry, material);
     wallRight.position.x = WALLWIDTH / 2;
-    wallRight.position.y = WALLHEIGHT / 2;
+    wallRight.position.y = WALLHEIGHT / 2 + GLOBALY;
     wallRight.receiveShadow = true;
     // scene.add(wallRight);
 
@@ -171,7 +174,7 @@ export default class {
     });
     const panel = new THREE.Mesh(panelGeom, panelMat);
     panel.position.x = -WALLWIDTH / 2 + 24 * GLOBALSCALE;
-    panel.position.y = PANELSIZE / 2;
+    panel.position.y = PANELSIZE / 2 + GLOBALY;
     panel.position.z = 40 * GLOBALSCALE;
     panel.receiveShadow = true;
     scene.add(panel);
@@ -184,7 +187,7 @@ export default class {
     });
     const screen = new THREE.Mesh(screenGeom, screenMat);
     screen.position.x = -WALLWIDTH / 2 + 30 * GLOBALSCALE;
-    screen.position.y = PANELSIZE / 2;
+    screen.position.y = PANELSIZE / 2 + GLOBALY;
     screen.position.z = 40 * GLOBALSCALE;
     screen.receiveShadow = true;
     scene.add(screen);
@@ -198,13 +201,17 @@ export default class {
       normalScale: new THREE.Vector2(0.5, 0.5),
     });
     const cube = new THREE.Mesh(geometry, mtl);
-    cube.position.y = STONEHEIGHT / 2 + 1 * GLOBALSCALE;
+    cube.position.y = STONEHEIGHT / 2 + 1 * GLOBALSCALE + GLOBALY;
+    // cube.position.x = 80 * GLOBALSCALE;
+    // cube.position.z = 40 * GLOBALSCALE;
     cube.castShadow = true;
     cube.receiveShadow = true;
     scene.add(cube);
 
     const pCloud = this.particles.init(STONEWIDTH, STONEHEIGHT + STONEWIDTH / 2);
-    scene.add(pCloud);
+    pCloud.position.x = 80 * GLOBALSCALE;
+    // pCloud.position.z = 40 * GLOBALSCALE;
+    // scene.add(pCloud);
 
     this.hyperMix = new HyperMix(this.renderer);
     this.hyperMix.init(camera, scene, width, height, controls);

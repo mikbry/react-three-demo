@@ -23,12 +23,12 @@ export default class {
     this.postprocessing = new Postprocessing();
     this.fboHelper = new FboHelper();
     this.fboHelper.init(this.renderer);
-    const fn = this.renderer.renderBufferDirect;
+    /* const fn = this.renderer.renderBufferDirect;
     this.renderer.renderBufferDirect = (_camera, fog, geometry, material, object, group) => {
       if (material !== settings.ignoredMaterial) {
         fn(_camera, fog, geometry, material, object, group);
       }
-    };
+    }; */
     lights.init(this.renderer);
     scene.add(lights.mesh);
     this.particles.init(this.renderer, camera, scene, this.simulator);
